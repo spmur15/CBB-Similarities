@@ -292,7 +292,7 @@ def player_layout():
 
         html.Br(),
 
-        html.Div(id="player-results")
+        dbc.Spinner(dcc.Loading(id="player-results"))
     ])
 
 
