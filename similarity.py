@@ -411,7 +411,7 @@ def enter_team(
     team_vec = build_team_position_vector(
         df=all_player_df,
         team=team_name,
-        start_year=year - 3,
+        start_year=year - 4,
         end_year=year,
         pos_class=pos_class
     )
@@ -500,7 +500,7 @@ def browse_compatibility(
     results = batch_player_team_compatibility(
         players_df=players,
         teams=power_teams,
-        start_year=year - 3,
+        start_year=year - 4,
         end_year=year,
         pos_class=pos_class,
         model=model
@@ -529,7 +529,7 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     team_vec = build_team_position_vector(
         df=all_player_df,
         team=team,
-        start_year=year - 3,
+        start_year=year - 4,
         end_year=year,
         pos_class=pos_class
     )
