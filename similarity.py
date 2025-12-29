@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-all_player_df = pd.read_csv('all_player_stats.csv')
+all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv')],axis=0)
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 
