@@ -198,7 +198,7 @@ def rank_teams_for_player(
 
 
 
-@lru_cache(maxsize=256)
+
 def batch_player_team_compatibility(
     players_df,
     teams,
@@ -246,7 +246,7 @@ def batch_player_team_compatibility(
 
 
 
-@lru_cache(maxsize=256)
+
 def enter_position(pos):
     CURRENT_SEASON = 2026
     POS_CLASS = pos
@@ -300,7 +300,7 @@ def enter_position(pos):
 
 
 
-@lru_cache(maxsize=256)
+
 def most_similar_teams_for_player(
     player_row,
     team_vectors,
@@ -337,7 +337,7 @@ def most_similar_teams_for_player(
 
 
 
-@lru_cache(maxsize=256)
+
 def enter_player(player_name, year=2026, style_weight=0.7, top_n=10):
     # ---- pull player row first ----
     player_row_all = (
@@ -404,7 +404,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=10):
 
 
 
-@lru_cache(maxsize=256)
+
 def enter_team(
     team_name,
     pos_class,
@@ -471,7 +471,7 @@ def enter_team(
 
 
 
-@lru_cache(maxsize=256)
+
 def browse_compatibility(
     pos_class,
     year=2026,
