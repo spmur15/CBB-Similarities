@@ -2,5 +2,5 @@ dash
 dash-bootstrap-components
 pandas
 plotly
-sklearn
+scikit-learn
 gunicorn
