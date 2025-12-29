@@ -1042,4 +1042,4 @@ def update_matchup_from_dropdowns(player, team):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run_server(debug=True)
