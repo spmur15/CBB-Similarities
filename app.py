@@ -527,17 +527,33 @@ def update_player_results(player_name):
         ],
         sort_action="native",
         row_selectable="single",
-        
+        page_size=10,
         style_table={"overflowX": "auto"},
         style_cell={
             "padding": "8px",
             "fontFamily": "sans-serif",
             "fontSize": "14px"
         },
+        # style_header={
+        #     "fontWeight": "bold",
+        #     "backgroundColor": "#f8f9fa"
+        # },
+        style_as_list_view=True,
+        style_data={
+        'color': 'black',
+        'backgroundColor': 'white'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': '#c3d2e6',
+            }
+        ],
         style_header={
-            "fontWeight": "bold",
-            "backgroundColor": "#f8f9fa"
-        }
+            'backgroundColor': '#e6c3c3',
+            'color': 'black',
+            'fontWeight': 'bold'
+        },
     )
 
 @app.callback(
@@ -580,7 +596,7 @@ def select_team_for_player(selected_rows, table_data, player_name):
 )
 def update_team_results(team_name, pos_class):
     if not team_name or not pos_class:
-        return html.Div("Select a team and position to see similar players. This may take up to 1-2 minutes.")
+        return html.Div("Select a team and position to see similar players. This may take up to 30 seconds.")
 
     df = enter_team(team_name, pos_class)
 
@@ -603,10 +619,26 @@ def update_team_results(team_name, pos_class):
             "fontFamily": "sans-serif",
             "fontSize": "14px"
         },
+        # style_header={
+        #     "fontWeight": "bold",
+        #     "backgroundColor": "#f8f9fa"
+        # },
+        style_as_list_view=True,
+        style_data={
+        'color': 'black',
+        'backgroundColor': 'white'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': '#c3d2e6',
+            }
+        ],
         style_header={
-            "fontWeight": "bold",
-            "backgroundColor": "#f8f9fa"
-        }
+            'backgroundColor': '#e6c3c3',
+            'color': 'black',
+            'fontWeight': 'bold'
+        },
     )
 
 @app.callback(
@@ -673,10 +705,23 @@ def run_browse(n_clicks, pos_class):
             "fontFamily": "sans-serif",
             "fontSize": "14px"
         },
+        
+        style_data={
+        'color': 'black',
+        'backgroundColor': 'white'
+        },
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': '#c3d2e6',
+            }
+        ],
         style_header={
-            "fontWeight": "bold",
-            "backgroundColor": "#f8f9fa"
-        }
+            'backgroundColor': '#e6c3c3',
+            'color': 'black',
+            'fontWeight': 'bold'
+        },
+        style_as_list_view=True,
     )
 
 @app.callback(
