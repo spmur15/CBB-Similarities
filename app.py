@@ -55,10 +55,15 @@ POSITION_OPTIONS = [
 # LOAD DATA (placeholder – adjust as needed)
 # -------------------------------------------------
 all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv')],axis=0)
+
+all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
+
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
+
+
 
 pos_map = {'PG':'Guard',
            's-PG':'Guard',
@@ -425,7 +430,7 @@ def about_layout():
 
 def browse_layout():
     return html.Div([
-        html.H4("Compatibility Browser"),
+        html.H4("Similarity Browser"),
         html.Hr(style={"opacity": 0.3}),
 
         html.P(
