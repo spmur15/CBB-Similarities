@@ -338,7 +338,7 @@ def most_similar_teams_for_player(
 
 
 
-def enter_player(player_name, year=2026, style_weight=0.7, top_n=10):
+def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
     # ---- pull player row first ----
     player_row_all = (
         all_player_df
@@ -410,7 +410,7 @@ def enter_team(
     pos_class,
     year=2026,
     style_weight=0.7,
-    top_n=15,
+    top_n=60,
     min_poss=100
 ):
     # ---- build team vector first ----
