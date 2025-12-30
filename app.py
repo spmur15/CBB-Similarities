@@ -248,14 +248,8 @@ def navbar():
                 dbc.Nav(
                     [
                         dbc.NavLink(
-                            html.Div(["Browse", html.Br(), "Pairs"]),
-                            href="/browse",
-                            active="exact",
-                            className="nav-item-stack"
-                        ),
-                        dbc.NavLink(
-                            html.Div(["Enter", html.Br(), "Players"]),
-                            href="/player",
+                            html.Div(["Similarity", html.Br(), "Pairs"]),
+                            href="/matchup",
                             active="exact",
                             className="nav-item-stack"
                         ),
@@ -266,8 +260,14 @@ def navbar():
                             className="nav-item-stack"
                         ),
                         dbc.NavLink(
-                            html.Div(["Match", html.Br(), "ups"]),
-                            href="/matchup",
+                            html.Div(["Enter", html.Br(), "Players"]),
+                            href="/player",
+                            active="exact",
+                            className="nav-item-stack"
+                        ),
+                        dbc.NavLink(
+                            html.Div(["Browse", html.Br(), "Pairs"]),
+                            href="/browse",
                             active="exact",
                             className="nav-item-stack"
                         ),
@@ -423,9 +423,11 @@ def matchup_layout():
 def about_layout():
     return html.Div([
         html.H4("About This Tool"),
-        html.P("This app evaluates stylistic compatibility between college basketball players and team systems."),
+        html.Hr(style={"opacity": 0.3}),
+        html.P("This app evaluates stylistic and statistical similarity between college basketball players and team systems."),
         html.P("Scores are based on position-specific PCA embeddings of style and stat profiles."),
-        html.P("Data source: Hoop-Explorer")
+        html.P("Data source: Hoop-Explorer.com")
+        
     ])
 
 def browse_layout():
@@ -480,7 +482,7 @@ app.layout = html.Div([
     html.Div(id="navbar"),
     html.Div(id="page-content", style={"padding": "16px"}),
     html.Br(),
-    html.Hr(),
+    html.Hr(style={"opacity": 0.3}),
     html.Br()
 ])
 
@@ -516,7 +518,7 @@ def route_page(pathname):
     elif pathname == "/about":
         return about_layout()
     else:
-        return player_layout()  # default
+        return team_layout()  # default
 
 @app.callback(
     Output("url", "pathname"),
