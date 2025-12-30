@@ -63,7 +63,7 @@ all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
 
-power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East'])]
+power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East']), 'team']
 
 pos_map = {'PG':'Guard',
            's-PG':'Guard',
