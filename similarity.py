@@ -3,6 +3,9 @@ import numpy as np
 from functools import lru_cache
 
 all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv')],axis=0)
+
+all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
+
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 
@@ -266,6 +269,7 @@ def enter_position(pos):
         all_player_df
         .query("year == @CURRENT_SEASON")
         .query("posClass == @POS_CLASS")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -368,6 +372,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
         all_player_df
         .query("year == @year")
         .query("posClass == @POS_CLASS")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -443,6 +448,7 @@ def enter_team(
         all_player_df
         .query("year == @year")
         .query("posClass == @pos_class")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -486,7 +492,7 @@ def enter_team(
 def browse_compatibility(
     pos_class,
     year=2026,
-    min_poss=150,
+    min_poss=600,
     top_players=40,
     top_n_per_player=3,
     style_weight=0.7
@@ -556,6 +562,7 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     model.fit(
         all_player_df
         .query("year == @year and posClass == @pos_class")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
