@@ -227,13 +227,13 @@ def navbar():
                             className="nav-item-stack"
                         ),
                         dbc.NavLink(
-                            html.Div(["", html.Br(), "Players"]),
+                            html.Div(["Enter", html.Br(), "Players"]),
                             href="/player",
                             active="exact",
                             className="nav-item-stack"
                         ),
                         dbc.NavLink(
-                            html.Div(["", html.Br(), "Teams"]),
+                            html.Div(["Enter", html.Br(), "Teams"]),
                             href="/team",
                             active="exact",
                             className="nav-item-stack"
@@ -284,8 +284,7 @@ def player_layout():
         html.Hr(style={"opacity": 0.3}),
         dcc.Dropdown(
             id="player-name",
-            options=[{"label": p, "value": p}
-                     for p in sorted(all_player_df["player_name"].unique())],
+            options=player_2026_options,
             placeholder="Select player",
             clearable=False
         ),
@@ -344,7 +343,7 @@ def team_layout():
 def matchup_layout():
     return html.Div([
         html.H4("Player ↔ Team"),
-        html.Div("Select a player and team to see similarity details. This may take 1-2 minutes."),
+        html.Div("Select a player and team to see similarity details. This may take up to 1-2 minutes."),
         html.Hr(style={"opacity": 0.3}),
         dbc.Row(
             [ 
@@ -409,7 +408,7 @@ def browse_layout():
 
         html.P(
             "Explore the strongest player–team similarities across college basketball. "
-            "This analysis may take 1-2 minutes to run.",
+            "This analysis may take up to 1-2 minutes to run.",
             className="text-muted"
         ),
 
@@ -513,7 +512,7 @@ def go_to_matchup(_):
 )
 def update_player_results(player_name):
     if not player_name:
-        return html.Div("Select a player to see similar teams. This may take 1-2 minutes.")
+        return html.Div("Select a player to see similar teams. This may take up to 1-2 minutes.")
 
     df = enter_player(player_name)
 
@@ -580,7 +579,7 @@ def select_team_for_player(selected_rows, table_data, player_name):
 )
 def update_team_results(team_name, pos_class):
     if not team_name or not pos_class:
-        return html.Div("Select a team and position to see similar players. This may take 1-2 minutes.")
+        return html.Div("Select a team and position to see similar players. This may take up to 1-2 minutes.")
 
     df = enter_team(team_name, pos_class)
 
