@@ -834,7 +834,7 @@ def update_matchup_summary(data):
                         }
             ),
             
-            html.Br(),
+            #html.Br(),
 
             # ---- Overall gauge ----
             dcc.Graph(
@@ -844,7 +844,8 @@ def update_matchup_summary(data):
                     height=160,
                     font_size=30
                 ),
-                config={"displayModeBar": False}
+                config={"displayModeBar": False},
+                style={"marginTop": "40px"}
             ),
             html.Br(),
 
