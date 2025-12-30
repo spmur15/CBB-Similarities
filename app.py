@@ -344,7 +344,8 @@ def team_layout():
                             style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                         ),
                     ],
-                    xs=12, md=5, lg=4
+                    xs=12, md=5, lg=4,
+                    className="mt-2 mt-md-0"
                 ),
 
                 dbc.Col(
@@ -398,7 +399,8 @@ def matchup_layout():
                             for t in sorted(all_player_df["team"].unique())
                         ],
                         placeholder="Select team",
-                        clearable=False
+                        clearable=False,
+                        style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                     )],
                     xs=12, md=5, lg=4
                 ),
@@ -464,7 +466,8 @@ def browse_layout():
                     id="browse-run",
                     color="primary",
                     n_clicks=0,
-                    className="mt-2 mt-md-0"
+                    className="mt-2 mt-md-0",
+                    style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                 ),
                 width="auto"
             ),
