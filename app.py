@@ -34,6 +34,16 @@ POSITION_LABELS = {
     "C": "Center",
 }
 
+POSITION_ORDER = [
+    'Guard', 'Wing', 'Big'
+]
+
+POSITION_LABELS = {
+    "Guard": "Guard",
+    "Wing": "Wing",
+    "Big": "Big"
+}
+
 POSITION_OPTIONS = [
     {"label": POSITION_LABELS[p], "value": p}
     for p in POSITION_ORDER
@@ -49,6 +59,17 @@ all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astyp
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
+
+pos_map = {'PG':'Guard',
+           's-PG':'Guard',
+           'CG':'Guard',
+           'WG':'Wing',
+           'WF':'Wing',
+           'S-PF':'Wing',
+           'PF/C':'Big',
+           'C':'Big'}
+
+all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
 
 CURRENT_SEASON = 2026
 
@@ -82,6 +103,7 @@ STAT_LABEL_MAP = {
 # -------------------------------------------------
 app = Dash(
     __name__,
+    title = 'CBB Similarity',
     external_stylesheets=[
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
@@ -121,7 +143,7 @@ def similarity_gauge(value, title, height=180, font_size=28):
                 "valueformat": ".3f"
             },
             title={"text": title,
-                   "font": {"size": 17}},
+                   "font": {"size": 14}},
             gauge={
                 "axis": {"range": [0, 1]},
                 "bar": {"color": "#969696",
@@ -546,11 +568,11 @@ def update_player_results(player_name):
         style_data_conditional=[
             {
                 'if': {'row_index': 'odd'},
-                'backgroundColor': '#c3d2e6',
+                'backgroundColor': '#cfd9e8',
             }
         ],
         style_header={
-            'backgroundColor': '#e6c3c3',
+            'backgroundColor': '#c3d2e6',
             'color': 'black',
             'fontWeight': 'bold'
         },
@@ -631,11 +653,11 @@ def update_team_results(team_name, pos_class):
         style_data_conditional=[
             {
                 'if': {'row_index': 'odd'},
-                'backgroundColor': '#c3d2e6',
+                'backgroundColor': '#cfd9e8',
             }
         ],
         style_header={
-            'backgroundColor': '#e6c3c3',
+            'backgroundColor': '#c3d2e6',
             'color': 'black',
             'fontWeight': 'bold'
         },
@@ -713,11 +735,11 @@ def run_browse(n_clicks, pos_class):
         style_data_conditional=[
             {
                 'if': {'row_index': 'odd'},
-                'backgroundColor': '#c3d2e6',
+                'backgroundColor': '#cfd9e8',
             }
         ],
         style_header={
-            'backgroundColor': '#e6c3c3',
+            'backgroundColor': '#c3d2e6',
             'color': 'black',
             'fontWeight': 'bold'
         },
@@ -800,7 +822,7 @@ def update_matchup_summary(data):
                     s["score"],
                     f"Overall Similarity - {label}",
                     height=180,
-                    font_size=36
+                    font_size=32
                 ),
                 config={"displayModeBar": False}
             ),
@@ -815,7 +837,7 @@ def update_matchup_summary(data):
                                 s["style_sim"],
                                 "Style Sim.",
                                 height=140,
-                                font_size=28
+                                font_size=24
                             ),
                             config={"displayModeBar": False}
                         ),
@@ -827,7 +849,7 @@ def update_matchup_summary(data):
                                 s["stat_sim"],
                                 "Stat Sim.",
                                 height=140,
-                                font_size=28
+                                font_size=24
                             ),
                             config={"displayModeBar": False}
                         ),
@@ -838,7 +860,7 @@ def update_matchup_summary(data):
         ]),
         style={
             "borderRadius": "16px",
-            "boxShadow": "0 4px 14px rgba(0,0,0,0.12)",
+            "boxShadow": "0 6px 18px rgba(0,0,0,0.14)",
             "padding": "8px"
         },
     )
