@@ -820,6 +820,8 @@ def update_matchup_summary(data):
                 ],
                 className="mb-3"
             ),
+            
+            html.Br(),
 
             # ---- Overall gauge ----
             dcc.Graph(
