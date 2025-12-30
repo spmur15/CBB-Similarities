@@ -6,6 +6,17 @@ all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('a
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 
+pos_map = {'PG':'Guard',
+           's-PG':'Guard',
+           'CG':'Guard',
+           'WG':'Wing',
+           'WF':'Wing',
+           'S-PF':'Wing',
+           'PF/C':'Big',
+           'C':'Big'}
+
+all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_similarity
