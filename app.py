@@ -63,7 +63,7 @@ all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
 
-power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East']), 'team']
+power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East']), 'team'].unique()
 
 pos_map = {'PG':'Guard',
            's-PG':'Guard',
@@ -299,7 +299,8 @@ def position_layout():
             id="pos-position",
             options=[{"label": p, "value": p}
                      for p in ['PG', 's-PG', 'CG', 'WG', 'WF', 'S-PF', 'PF/C', 'C']],#sorted(all_player_df["posClass"].unique())],
-            placeholder="Select position"
+            placeholder="Select position",
+            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
         ),
         html.Br(),
         dbc.Spinner(dcc.Loading(id="position-table"))
