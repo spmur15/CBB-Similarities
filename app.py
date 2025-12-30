@@ -527,6 +527,7 @@ def update_player_results(player_name):
         ],
         sort_action="native",
         row_selectable="single",
+        
         style_table={"overflowX": "auto"},
         style_cell={
             "padding": "8px",
@@ -595,6 +596,7 @@ def update_team_results(team_name, pos_class):
         ],
         sort_action="native",
         row_selectable="single",
+        page_size=10,
         style_table={"overflowX": "auto"},
         style_cell={
             "padding": "8px",
@@ -735,7 +737,7 @@ def update_matchup_summary(data):
                         style={"textAlign": "center"}
                     ),
                     html.Div(
-                        "Comparison is against players at the same position within the team’s system.",
+                        "Comparison is against players at the same position within the team’s system from 2022-2026.",
                         className="text-muted",
                         style={
                             "textAlign": "center",
