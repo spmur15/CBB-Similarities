@@ -63,7 +63,7 @@ all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
 
-
+power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East'])]
 
 pos_map = {'PG':'Guard',
            's-PG':'Guard',
@@ -81,7 +81,7 @@ CURRENT_SEASON = 2026
 players_2026 = (
     all_player_df
     .query("year == @CURRENT_SEASON")
-    .sort_values("player_name")
+    #.sort_values("player_name")
 )
 
 player_2026_options = [
@@ -313,7 +313,8 @@ def player_layout():
             id="player-name",
             options=player_2026_options,
             placeholder="Select player",
-            clearable=False
+            clearable=False,
+            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
         ),
 
         html.Br(),
@@ -336,9 +337,10 @@ def team_layout():
                             id="team-name",
                             options=[
                                 {"label": t, "value": t}
-                                for t in sorted(all_player_df["team"].unique())
+                                for t in sorted(power_conf)
                             ],
                             placeholder="Select team",
+                            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                         ),
                     ],
                     xs=12, md=5, lg=4
@@ -351,6 +353,7 @@ def team_layout():
                             id="team-pos",
                             options=POSITION_OPTIONS,
                             placeholder="Select position",
+                            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                         ),
                     ],
                     xs=12, md=5, lg=4,
@@ -370,7 +373,7 @@ def team_layout():
 def matchup_layout():
     return html.Div([
         html.H4("Player ↔ Team"),
-        html.Div("Select a player and team to see similarity details. This may take up to 1-2 minutes."),
+        html.Div("Select a player and team to see similarity details. This may take up to 30 seconds."),
         html.Hr(style={"opacity": 0.3}),
         dbc.Row(
             [ 
@@ -380,7 +383,8 @@ def matchup_layout():
                         id="matchup-player",
                         options=player_2026_options,
                         placeholder="Select player (2026)",
-                        clearable=False
+                        clearable=False,
+                        style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                     )],
                     xs=12, md=5, lg=4
                 ),
@@ -447,6 +451,7 @@ def browse_layout():
                     id="browse-pos",
                     options=POSITION_OPTIONS,
                     placeholder="Select position",
+                    style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
                 ),
                 xs=12, md=5, lg=4
             ),
@@ -816,11 +821,17 @@ def update_matchup_summary(data):
                         style={
                             "textAlign": "center",
                             "fontSize": "13px",
-                            "marginTop": "4px"
+                            "marginTop": "4px",
+                            "marginBottom": "0px"
                         }
                     ),
                 ],
-                className="mb-3"
+                className="mb-3",
+                style={
+                            "textAlign": "center",
+                            "marginTop": "0px",
+                            "marginBottom": "0px"
+                        }
             ),
             
             html.Br(),
@@ -830,8 +841,8 @@ def update_matchup_summary(data):
                 figure=similarity_gauge(
                     s["score"],
                     f"Overall Similarity - {label}",
-                    height=180,
-                    font_size=32
+                    height=160,
+                    font_size=30
                 ),
                 config={"displayModeBar": False}
             ),
@@ -845,8 +856,8 @@ def update_matchup_summary(data):
                             figure=similarity_gauge(
                                 s["style_sim"],
                                 "Style Sim.",
-                                height=140,
-                                font_size=24
+                                height=135,
+                                font_size=22
                             ),
                             config={"displayModeBar": False}
                         ),
@@ -916,8 +927,8 @@ def update_matchup_chart(data, tab):
     pos = data["posClass"]
 
     subtitle_text = (
-        f"Team stats are taken among players<br>from the team with the target<br>"
-        f"position ({pos}) from 2022–2026"
+        f"Team styles & stats are taken among players<br>from the team with the target<br>"
+        f"position ({pos}) from 2022–2026."
     )
 
     
