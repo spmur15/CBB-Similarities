@@ -782,7 +782,7 @@ def update_matchup_summary(data):
                         style={"textAlign": "center"}
                     ),
                     html.Div(
-                        "Comparison is against players at the same position within the team’s system from 2022-2026.",
+                        "Comparison is against players at the same position within the team’s system.",
                         className="text-muted",
                         style={
                             "textAlign": "center",
