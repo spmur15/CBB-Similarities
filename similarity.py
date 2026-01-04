@@ -269,7 +269,7 @@ def enter_position(pos):
         all_player_df
         .query("year == @CURRENT_SEASON")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -372,7 +372,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
         all_player_df
         .query("year == @year")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -448,7 +448,7 @@ def enter_team(
         all_player_df
         .query("year == @year")
         .query("posClass == @pos_class")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -492,7 +492,7 @@ def enter_team(
 def browse_compatibility(
     pos_class,
     year=2026,
-    min_poss=600,
+    min_poss=350,
     top_players=40,
     top_n_per_player=3,
     style_weight=0.7
@@ -562,7 +562,7 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     model.fit(
         all_player_df
         .query("year == @year and posClass == @pos_class")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
