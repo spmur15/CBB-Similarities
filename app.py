@@ -243,7 +243,7 @@ def navbar():
     return dbc.Navbar(
         dbc.Container(
             [
-                dbc.NavbarBrand("CBB Player-Team Similarity", className="fw-bold"),
+                dbc.NavbarBrand("CBB Similarity", className="fw-bold"),
 
                 dbc.Nav(
                     [
@@ -485,19 +485,155 @@ def about_layout():
     return html.Div([
         html.H4("About This Tool"),
         html.Hr(style={"opacity": 0.3}),
-        html.P("This app uses data from hoop-explorer.com to evaluates stylistic and statistical similarity between college basketball players and team systems."),
-        html.P("Scores are based on PCA embeddings of style and stat profiles."),
-        html.P("Positions are Guard, Wing, and Big. Comparisons are position-specific."),
-        html.P("For example, if you want to compare Nick Townsend (wing) and UConn, the similarity scores are drawn from UConn's wings over the desired subset of seasons."),
+        html.P(["This app uses data from ", 
+                html.A(
+                    "hoop-explorer.com",
+                    href="https://hoop-explorer.com",
+                    target="_blank",   # open in new tab
+                    className="external-link"
+                ),
+                " to evaluates stylistic and statistical similarity between college basketball players and team systems."]),
+        html.P("Similarity scores are based on PCA embeddings of style and stat profiles. Scores are between -1 and 1 and can be interpreted as:"),
+        html.Div(
+            [
+                html.Strong("Similarity Scores"),
+                html.Ul([
+                    html.Li(".9 - 1 → Extremely similar"),
+                    html.Li(".7 - .9 → Very similar"),
+                    html.Li(".5 - .7 → Somewhat similar"),
+                    html.Li(".2 - .5 → Some small similarities"),
+                    html.Li(">.2 → Not similar"),
+                ]),
+            ],
+        ),
+        html.P("An example using Nick Townsend (wing) and UConn: similarity scores are drawn from UConn's wings over the desired subset of seasons and Nick Townsend in the 2025-26 season..."),
+        html.Br(),
         html.H5("Styles"),
-
+        html.P("Styles are the percentage of possessions for a player or team with a specific action or play type. By default, style similarity makes up 70% of the overall similarity score. The styles are:"),
+        html.Div(
+            [
+                html.Strong("Slashing"),
+                html.Ul([
+                    html.Li("Rim attack"),
+                    html.Li("Attack & kick"),
+                    html.Li("Perimeter cut"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Jumper"),
+                html.Ul([
+                    html.Li("Dribble pull-up"),
+                    html.Li("Mid-range"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Screens"),
+                html.Ul([
+                    html.Li("Big cut/roll"),
+                    html.Li("Pick & pop"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Post"),
+                html.Ul([
+                    html.Li("Post-up"),
+                    html.Li("Post kick"),
+                    html.Li("High-low"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Misc."),
+                html.Ul([
+                    html.Li("Transition"),
+                    html.Li("Rebound putback/scramble"),
+                ]),
+            ],
+        ),
+        html.Br(),
         html.H5("Stats"),
-
+        html.P("Stats are all pace-adjusted and represent characteristics in play styles and abilities. By default, style similarity makes up 30% of the overall similarity scores. The stats used are:"),
+        html.Div(
+            [
+                html.Strong("Shot Diet & Volume"),
+                html.Ul([
+                    html.Li("Free throw rate"),
+                    html.Li("Rim rate"),
+                    html.Li("3P att. rate"),
+                    html.Li("Usage rate"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Playmaking"),
+                html.Ul([
+                    html.Li("Assist rate"),
+                    html.Li("Turnover rate"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Physicality/Athleticism"),
+                html.Ul([
+                    html.Li("Offensive rebound rate"),
+                    html.Li("Defensive rebound rate"),
+                    html.Li("Block rate"),
+                    html.Li("Steal rate"),
+                ]),
+            ],
+        ),
+        html.Br(),
         html.H5("Positions"),
+        html.P("Positions are Guard, Wing, and Big. Comparisons are position-specific."),
+        html.P("Positions defined from hoop-explorer.com's 8 detailed positions:"),
+        html.Div(
+            [
+                html.Strong("Guard"),
+                html.Ul([
+                    html.Li("Pure PG"),
+                    html.Li("Scoring PG"),
+                    html.Li("Combo G"),
+                ]),
+            ],
+            className="mb-3"
+        ),
 
+        html.Div(
+            [
+                html.Strong("Wing"),
+                html.Ul([
+                    html.Li("Wing Guard"),
+                    html.Li("Wing Forward"),
+                    html.Li("Stretch Forward"),
+                ]),
+            ],
+            className="mb-3"
+        ),
 
-
-        html.P("Data source: Hoop-Explorer.com")
+        html.Div(
+            [
+                html.Strong("Big"),
+                html.Ul([
+                    html.Li("Power Forward / Center"),
+                    html.Li("Center"),
+                ]),
+            ]
+        ),
+        html.A(
+            "Hoop-Explorer.com",
+            href="https://hoop-explorer.com",
+            target="_blank",   # open in new tab
+            className="external-link"
+        ),
         
     ])
 
@@ -766,7 +902,7 @@ def update_team_results(team_name, pos_class):
         return html.Div("This may take 30 seconds or more.")
 
     df = enter_team(team_name, pos_class)
-    print(df)
+    #print(df)
 
     return dash_table.DataTable(
         id="team-players-table",
