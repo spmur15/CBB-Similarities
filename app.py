@@ -117,6 +117,28 @@ BROWSE_TABLES = {
     "Big":   pd.read_parquet("assets//browse_bigs.parquet"),
 }
 
+TEAM_CONF_LOOKUP = (
+    all_player_df
+    .groupby("team", as_index=True)["conf"]
+    .first()
+)
+
+for pos, df in BROWSE_TABLES.items():
+    df = df.copy()
+
+    # --- add conferences ---
+    df["player_conf"] = df["player_team"].map(TEAM_CONF_LOOKUP)
+    df["target_conf"] = df["target_team"].map(TEAM_CONF_LOOKUP)
+
+    # --- optional safety ---
+    df["player_conf"] = df["player_conf"].fillna("Unknown")
+    df["target_conf"] = df["target_conf"].fillna("Unknown")
+
+    # --- rounding consistency ---
+    BROWSE_TABLES[pos] = df.round(3)
+
+
+
 # -------------------------------------------------
 # BROWSE FILTER OPTIONS (derived once)
 # -------------------------------------------------
@@ -157,6 +179,30 @@ PLAYER_OPTIONS_BY_POS = {
     ),
 }
 
+PLAYER_OPTIONS_BY_POS = {
+    pos: sorted(df["player"].unique())
+    for pos, df in BROWSE_TABLES.items()
+}
+
+PLAYER_TEAM_OPTIONS_BY_POS = {
+    pos: sorted(df["player_team"].unique())
+    for pos, df in BROWSE_TABLES.items()
+}
+
+TARGET_TEAM_OPTIONS_BY_POS = {
+    pos: sorted(df["target_team"].unique())
+    for pos, df in BROWSE_TABLES.items()
+}
+
+PLAYER_CONF_OPTIONS_BY_POS = {
+    pos: sorted(df["player_conf"].unique())
+    for pos, df in BROWSE_TABLES.items()
+}
+
+TARGET_CONF_OPTIONS_BY_POS = {
+    pos: sorted(df["target_conf"].unique())
+    for pos, df in BROWSE_TABLES.items()
+}
 
 
 # -------------------------------------------------
@@ -1270,22 +1316,22 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class):
 @app.callback(
     Output("browse-results", "children"),
     Input("browse-run", "n_clicks"),
+    Input("filter-player", "value"),
+    Input("filter-player-team", "value"),
+    Input("filter-player-conf", "value"),
+    Input("filter-target-team", "value"),
+    Input("filter-target-conf", "value"),
     State("browse-pos", "value"),
-    State("filter-player", "value"),
-    State("filter-player-team", "value"),
-    State("filter-player-conf", "value"),
-    State("filter-target-team", "value"),
-    State("filter-target-conf", "value"),
     prevent_initial_call=True
 )
 def run_browse(
         n_clicks,
-        pos_class,
         f_player,
         f_player_team,
         f_player_conf,
         f_target_team,
         f_target_conf,
+        pos_class,
     ):
         if not pos_class:
             return html.Div("Select a position to run the analysis.")
@@ -1299,27 +1345,14 @@ def run_browse(
         if f_player_team:
             df = df[df["player_team"].isin(f_player_team)]
 
+        if f_player_conf:
+            df = df[df["player_conf"].isin(f_player_conf)]
+
         if f_target_team:
             df = df[df["target_team"].isin(f_target_team)]
 
-        if f_player_conf:
-            df = df.merge(
-                all_player_df[["team", "conf"]].drop_duplicates(),
-                left_on="player_team",
-                right_on="team",
-                how="left"
-            )
-            df = df[df["conf"].isin(f_player_conf)]
-
         if f_target_conf:
-            df = df.merge(
-                all_player_df[["team", "conf"]].drop_duplicates(),
-                left_on="target_team",
-                right_on="team",
-                how="left",
-                suffixes=("", "_target")
-            )
-            df = df[df["conf_target"].isin(f_target_conf)]
+            df = df[df["target_conf"].isin(f_target_conf)]
 
         if df.empty:
             return html.Div("No results match the selected filters.")
@@ -1396,6 +1429,7 @@ def run_browse(
             },
         ],
         )
+
 
 
 
@@ -1782,18 +1816,44 @@ def show_filters_after_run(n_clicks):
     return {"display": "block"}
 
 
+# @app.callback(
+#     Output("filter-player", "options"),
+#     Input("browse-pos", "value"),
+# )
+# def update_player_filter_options(pos_class):
+#     if not pos_class:
+#         return []
+
+#     return [
+#         {"label": p, "value": p}
+#         for p in PLAYER_OPTIONS_BY_POS[pos_class]
+#     ]
+
+
+
 @app.callback(
     Output("filter-player", "options"),
-    Input("browse-pos", "value"),
+    Output("filter-player-team", "options"),
+    Output("filter-player-conf", "options"),
+    Output("filter-target-team", "options"),
+    Output("filter-target-conf", "options"),
+    Input("browse-run", "n_clicks"),
+    State("browse-pos", "value"),
+    prevent_initial_call=True
 )
-def update_player_filter_options(pos_class):
-    if not pos_class:
-        return []
+def populate_filters(_, pos):
+    if not pos:
+        raise PreventUpdate
 
-    return [
-        {"label": p, "value": p}
-        for p in PLAYER_OPTIONS_BY_POS[pos_class]
-    ]
+    return (
+        [{"label": p, "value": p} for p in PLAYER_OPTIONS_BY_POS[pos]],
+        [{"label": t, "value": t} for t in PLAYER_TEAM_OPTIONS_BY_POS[pos]],
+        [{"label": c, "value": c} for c in PLAYER_CONF_OPTIONS_BY_POS[pos]],
+        [{"label": t, "value": t} for t in TARGET_TEAM_OPTIONS_BY_POS[pos]],
+        [{"label": c, "value": c} for c in TARGET_CONF_OPTIONS_BY_POS[pos]],
+    )
+
+
 
 
 
