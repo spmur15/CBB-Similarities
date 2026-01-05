@@ -108,7 +108,7 @@ STAT_LABEL_MAP = {
 # -------------------------------------------------
 app = Dash(
     __name__,
-    title = 'CBB Similarity',
+    title = 'CBB Sim.',
     external_stylesheets=[
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
@@ -248,7 +248,7 @@ def navbar():
                 dbc.Nav(
                     [
                         dbc.NavLink(
-                            html.Div(["Similarity", html.Br(), "Pairs"]),
+                            html.Div(["Similarity", html.Br(), "Details"]),
                             href="/matchup",
                             active="exact",
                             className="nav-item-stack"
@@ -295,135 +295,189 @@ def position_layout():
     return html.Div([
         html.H4("Position Explorer"),
         html.Hr(style={"opacity": 0.3}),
-        dcc.Dropdown(
-            id="pos-position",
-            options=[{"label": p, "value": p}
-                     for p in ['PG', 's-PG', 'CG', 'WG', 'WF', 'S-PF', 'PF/C', 'C']],#sorted(all_player_df["posClass"].unique())],
-            placeholder="Select position",
-            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-        ),
+        dbc.Row([
+                dbc.Col(
+                    [
+                    dcc.Dropdown(
+                        id="pos-position",
+                        options=[{"label": p, "value": p}
+                                for p in ['PG', 's-PG', 'CG', 'WG', 'WF', 'S-PF', 'PF/C', 'C']],#sorted(all_player_df["posClass"].unique())],
+                        placeholder="Select position",
+                        style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
+                    )],
+                    # xs=6, md=3, lg=2,
+                    # className="mt-2 mt-md-0"
+                )
+            ],
+            justify="center",
+            className="g-3"),
         html.Br(),
         dbc.Spinner(dcc.Loading(id="position-table"))
     ])
 
 def player_layout():
-    return html.Div([
-        html.H4("Player → Teams"),
-        html.Hr(style={"opacity": 0.3}),
-        dcc.Dropdown(
-            id="player-name",
-            options=player_2026_options,
-            placeholder="Select player",
-            clearable=False,
-            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-        ),
+    return html.Div(
+        className="page-center",
+        children=[
+            html.Div(
+                className="hero-box",
+                children=[
+                    html.H2("Find Player–Team Fits", className="hero-title"),
+                    html.P(
+                        "Select a player to see compatible teams.",
+                        className="hero-subtitle"
+                    ),
+                    html.P(
+                        "Selected player is compared with players from power-conference teams with the same position from 2022-2026.",
+                        className="hero-subtitle"
+                    ),
 
-        html.Br(),
+                    dcc.Dropdown(
+                        id="player-name",
+                        options=player_2026_options,
+                        placeholder="Search for a player…",
+                        clearable=False,
+                        className="modern-dropdown"
+                    ),
+                ],
+            ),
 
-        dbc.Spinner(dcc.Loading(id="player-results"))
-    ])
+            html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
+
+            html.Div(
+                className="results-wrapper",
+                children=[
+                    dbc.Spinner(dcc.Loading(id="player-results"))
+                ]
+            )
+        ]
+    )
+
 
 
 def team_layout():
-    return html.Div([
-        html.H4("Team → Players"),
-        html.Hr(style={"opacity": 0.3}),
+    return html.Div(
+        className="page-center",
+        children=[
+            html.Div(
+                className="hero-box",
+                children=[
+                    html.H2("Find Team–Player Fits", className="hero-title"),
+                    html.P(
+                        "Select a team and position to see compatible players.",
+                        className="hero-subtitle"
+                    ),
+                    html.P(
+                        "Players on the selected team among the selected position are compared with all current players (2025-26) in the selected position.",
+                        className="hero-subtitle"
+                    ),
 
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.Label("Team", className="fw-bold"),
-                        dcc.Dropdown(
-                            id="team-name",
-                            options=[
-                                {"label": t, "value": t}
-                                for t in sorted(power_conf)
-                            ],
-                            placeholder="Select team",
-                            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                        ),
-                    ],
-                    xs=12, md=5, lg=4,
-                    className="mt-2 mt-md-0"
-                ),
+                    dbc.Row(
+                        className="g-3 justify-content-center",
+                        children=[
+                            dbc.Col(
+                                dcc.Dropdown(
+                                    id="team-name",
+                                    options=[
+                                        {"label": t, "value": t}
+                                        for t in sorted(power_conf)
+                                    ],
+                                    placeholder="Select team…",
+                                    className="modern-dropdown",
+                                ),
+                                xs=12, md=6
+                            ),
 
-                dbc.Col(
-                    [
-                        html.Label("Position", className="fw-bold"),
-                        dcc.Dropdown(
-                            id="team-pos",
-                            options=POSITION_OPTIONS,
-                            placeholder="Select position",
-                            style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                        ),
-                    ],
-                    xs=12, md=5, lg=4,
-                    className="mt-2 mt-md-0"  # 👈 spacing only when stacked
-                ),
-            ],
-            justify="center",
-            className="g-3"
-        ),
+                            dbc.Col(
+                                dcc.Dropdown(
+                                    id="team-pos",
+                                    options=POSITION_OPTIONS,
+                                    placeholder="Select position…",
+                                    className="modern-dropdown",
+                                ),
+                                xs=12, md=6
+                            ),
+                        ]
+                    ),
+                ],
+            ),
 
-        html.Br(),
+            html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
 
-        dbc.Spinner(dcc.Loading(id="team-results"))
-    ])
+            html.Div(
+                className="results-wrapper",
+                children=[
+                    dbc.Spinner(dcc.Loading(id="team-results"))
+                ]
+            )
+        ]
+    )
+
 
 
 def matchup_layout():
-    return html.Div([
-        html.H4("Player ↔ Team"),
-        html.Div("Select a player and team to see similarity details. This may take up to 30 seconds."),
-        html.Hr(style={"opacity": 0.3}),
-        dbc.Row(
-            [ 
-                dbc.Col([
-                    html.Label("Player", className="fw-bold"),
-                    dcc.Dropdown(
-                        id="matchup-player",
-                        options=player_2026_options,
-                        placeholder="Select player (2026)",
-                        clearable=False,
-                        style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                    )],
-                    xs=12, md=5, lg=4
-                ),
-                dbc.Col([
-                    html.Label("Team", className="fw-bold"),
-                    dcc.Dropdown(
-                        id="matchup-team",
-                        options=[
-                            {"label": t, "value": t}
-                            for t in sorted(all_player_df["team"].unique())
-                        ],
-                        placeholder="Select team",
-                        clearable=False,
-                        style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                    )],
-                    xs=12, md=5, lg=4
-                ),
-            ],
-            justify="center",
-            className="g-3"  # responsive gap
-        ),
+    return html.Div(
+        className="page-center",
+        children=[
+            html.Div(
+                className="hero-box hero-box-compact",
+                children=[
+                    html.H4("Player ↔ Team", className="hero-title-sm"),
+                    html.P(
+                        "Select a player and team to see similarity details. "
+                        "This may take up to 30 seconds.",
+                        className="hero-subtitle-sm"
+                    ),
 
-        html.Br(),
+                    dbc.Row(
+                        className="g-2 justify-content-center",
+                        children=[
+                            dbc.Col(
+                                dcc.Dropdown(
+                                    id="matchup-player",
+                                    options=player_2026_options,
+                                    placeholder="Player (2026)…",
+                                    clearable=False,
+                                    className="modern-dropdown compact-dropdown",
+                                ),
+                                xs=12, md=5, lg=4
+                            ),
 
-        html.Div(id="matchup-summary", className="mb-3"),
+                            dbc.Col(
+                                dcc.Dropdown(
+                                    id="matchup-team",
+                                    options=[
+                                        {"label": t, "value": t}
+                                        for t in sorted(all_player_df["team"].unique())
+                                    ],
+                                    placeholder="Team…",
+                                    clearable=False,
+                                    className="modern-dropdown compact-dropdown",
+                                ),
+                                xs=12, md=5, lg=4
+                            ),
+                        ]
+                    ),
+                ],
+            ),
 
-        dbc.Tabs(
-            [
-                dbc.Tab(label="Style", tab_id="style"),
-                dbc.Tab(label="Stats", tab_id="stats"),
-            ],
-            id="matchup-tabs",
-            active_tab="style"
-        ),
+            html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
 
-        dcc.Graph(id="matchup-bar-chart")
-    ])
+            html.Div(id="matchup-summary", className="mb-3"),
+
+            dbc.Tabs(
+                [
+                    dbc.Tab(label="Style", tab_id="style"),
+                    dbc.Tab(label="Stats", tab_id="stats"),
+                ],
+                id="matchup-tabs",
+                active_tab="style"
+            ),
+
+            dcc.Graph(id="matchup-bar-chart"),
+        ]
+    )
+
 
 
 
@@ -438,48 +492,64 @@ def about_layout():
     ])
 
 def browse_layout():
-    return html.Div([
-        html.H4("Similarity Browser"),
-        html.Hr(style={"opacity": 0.3}),
+    return html.Div(
+        className="page-center",
+        children=[
+            html.Div(
+                className="hero-box",
+                children=[
+                    html.H2(
+                        "Similarity Browser",
+                        className="hero-title"
+                    ),
 
-        html.P(
-            "Explore the strongest player–team similarities across college basketball. "
-            "This analysis may take up to 1-2 minutes to run.",
-            className="text-muted"
-        ),
+                    html.P(
+                        "Explore the strongest player–team similarities across college basketball.",
+                        className="hero-subtitle"
+                    ),
 
-        dbc.Row([
-            dbc.Col(
-                dcc.Dropdown(
-                    id="browse-pos",
-                    options=POSITION_OPTIONS,
-                    placeholder="Select position",
-                    style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                ),
-                xs=12, md=5, lg=4
+                    html.P(
+                        "Results are based on comparisons within the same position and may take up to 1–2 minutes to compute.",
+                        className="hero-subtitle"
+                    ),
+
+                    # --- Position dropdown ---
+                    dcc.Dropdown(
+                        id="browse-pos",
+                        options=POSITION_OPTIONS,
+                        placeholder="Select a position…",
+                        clearable=False,
+                        className="modern-dropdown"
+                    ),
+
+                    # --- Primary action ---
+                    html.Div(
+                        dbc.Button(
+                            "RUN ANALYSIS",
+                            id="browse-run",
+                            n_clicks=0,
+                            className="robot-button"
+                        ),
+                        style={"marginTop": "16px"}
+                    ),
+                ],
             ),
-            html.Br(),
 
-            dbc.Col(
-                dbc.Button(
-                    "Run Analysis",
-                    id="browse-run",
-                    color="primary",
-                    n_clicks=0,
-                    className="mt-2 mt-md-0",
-                    style={"boxShadow": "0 6px 18px rgba(0,0,0,0.14)"},
-                ),
-                width="auto"
-            ),
-        ], align="center"),
+            html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
 
-        html.Br(),
+            html.Div(
+                className="results-wrapper",
+                children=[
+                    dbc.Spinner(
+                        html.Div(id="browse-results"),
+                        color="primary"
+                    )
+                ]
+            )
+        ]
+    )
 
-        dbc.Spinner(
-            html.Div(id="browse-results"),
-            color="primary"
-        )
-    ])
+
 
 
 # -------------------------------------------------
@@ -491,7 +561,7 @@ app.layout = html.Div([
     html.Div(id="navbar"),
     html.Div(id="page-content", style={"padding": "16px"}),
     html.Br(),
-    html.Hr(style={"opacity": 0.3}),
+    #html.Hr(style={"opacity": 0.3}),
     html.Br()
 ])
 
@@ -550,7 +620,7 @@ def go_to_matchup(_):
 )
 def update_player_results(player_name):
     if not player_name:
-        return html.Div("Select a player to see similar teams. This may take up to 1-2 minutes.")
+        return html.Div("This may take up to 1-2 minutes.")
 
     df = enter_player(player_name)
 
@@ -634,7 +704,7 @@ def select_team_for_player(selected_rows, table_data, player_name):
 )
 def update_team_results(team_name, pos_class):
     if not team_name or not pos_class:
-        return html.Div("Select a team and position to see similar players. This may take up to 30 seconds.")
+        return html.Div("This may take 30 seconds or more.")
 
     df = enter_team(team_name, pos_class)
 
@@ -713,7 +783,7 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class):
 )
 def run_browse(n_clicks, pos_class):
     if not pos_class:
-        return html.Div("Select a position before running the analysis.")
+        return html.Div("Select a position to run the analysis.")
 
     df = browse_compatibility(pos_class)
 
