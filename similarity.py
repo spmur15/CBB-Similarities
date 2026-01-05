@@ -256,11 +256,6 @@ def batch_player_team_compatibility(
     
     return pd.DataFrame(results)
 
-
-
-
-
-
 def enter_position(pos):
     CURRENT_SEASON = 2026
     POS_CLASS = pos
@@ -269,7 +264,7 @@ def enter_position(pos):
         all_player_df
         .query("year == @CURRENT_SEASON")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -279,7 +274,7 @@ def enter_position(pos):
     results = batch_player_team_compatibility(
         players_df=players_2026,
         teams=power_teams,
-        start_year=2023,
+        start_year=2022,
         end_year=2026,
         pos_class=POS_CLASS,
         model=model
@@ -370,7 +365,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
         all_player_df
         .query("year == @year")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 400")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -397,7 +392,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
         vec = build_team_position_vector(
             df=all_player_df,
             team=team,
-            start_year=year-3,
+            start_year=year-4,
             end_year=year,
             pos_class=POS_CLASS
         )
@@ -448,7 +443,7 @@ def enter_team(
         all_player_df
         .query("year == @year")
         .query("posClass == @pos_class")
-        .query("off_poss > 400")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -492,7 +487,7 @@ def enter_team(
 def browse_compatibility(
     pos_class,
     year=2026,
-    min_poss=600,
+    min_poss=350,
     top_players=40,
     top_n_per_player=3,
     style_weight=0.7
@@ -511,7 +506,7 @@ def browse_compatibility(
         .query("off_poss >= @min_poss")
         .dropna(subset=STYLE_COLS + STAT_COLS)
         .sort_values("off_poss", ascending=False)
-        .head(top_players)
+        #.head(top_players)
         .copy()
     )
 
@@ -562,7 +557,7 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     model.fit(
         all_player_df
         .query("year == @year and posClass == @pos_class")
-        .query("off_poss > 600")
+        .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
