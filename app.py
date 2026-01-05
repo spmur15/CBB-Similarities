@@ -19,6 +19,11 @@ from similarity import (
 )
 
 
+
+
+
+
+
 POSITION_ORDER = [
     'PG', 's-PG', 'CG', 'WG', 'WF', 'S-PF', 'PF/C', 'C'
 ]
@@ -104,11 +109,62 @@ STAT_LABEL_MAP = {
 
 
 # -------------------------------------------------
+# LOAD PRECOMPUTED BROWSE TABLES
+# -------------------------------------------------
+BROWSE_TABLES = {
+    "Guard": pd.read_parquet("assets//browse_guards.parquet"),
+    "Wing":  pd.read_parquet("assets//browse_wings.parquet"),
+    "Big":   pd.read_parquet("assets//browse_bigs.parquet"),
+}
+
+# -------------------------------------------------
+# BROWSE FILTER OPTIONS (derived once)
+# -------------------------------------------------
+ALL_BROWSE = pd.concat(BROWSE_TABLES.values(), ignore_index=True)
+
+PLAYER_OPTIONS = sorted(ALL_BROWSE["player"].unique())
+PLAYER_TEAM_OPTIONS = sorted(ALL_BROWSE["player_team"].unique())
+TARGET_TEAM_OPTIONS = sorted(ALL_BROWSE["target_team"].unique())
+
+PLAYER_CONF_OPTIONS = sorted(
+    all_player_df.set_index("team").loc[PLAYER_TEAM_OPTIONS]["conf"].unique()
+)
+
+TARGET_CONF_OPTIONS = sorted(
+    all_player_df.set_index("team").loc[TARGET_TEAM_OPTIONS]["conf"].unique()
+)
+
+# optional: ensure consistent rounding
+for k, df in BROWSE_TABLES.items():
+    BROWSE_TABLES[k] = df.round(3)
+
+
+PLAYER_OPTIONS_BY_POS = {
+    "Guard": sorted(
+        all_player_df
+        .query("posClass == 'Guard' and year == @CURRENT_SEASON")["player_name"]
+        .unique()
+    ),
+    "Wing": sorted(
+        all_player_df
+        .query("posClass == 'Wing' and year == @CURRENT_SEASON")["player_name"]
+        .unique()
+    ),
+    "Big": sorted(
+        all_player_df
+        .query("posClass == 'Big' and year == @CURRENT_SEASON")["player_name"]
+        .unique()
+    ),
+}
+
+
+
+# -------------------------------------------------
 # APP SETUP (MUST COME FIRST)
 # -------------------------------------------------
 app = Dash(
     __name__,
-    title = 'CBB Sim.',
+    title = 'CBB Similarity',
     external_stylesheets=[
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
@@ -644,22 +700,13 @@ def browse_layout():
             html.Div(
                 className="hero-box",
                 children=[
-                    html.H2(
-                        "Similarity Browser",
-                        className="hero-title"
-                    ),
+                    html.H2("Similarity Browser", className="hero-title"),
 
                     html.P(
                         "Explore the strongest player–team similarities across college basketball.",
                         className="hero-subtitle"
                     ),
 
-                    html.P(
-                        "Results are based on comparisons within the same position and may take up to 1–2 minutes to compute.",
-                        className="hero-subtitle"
-                    ),
-
-                    # --- Position dropdown ---
                     dcc.Dropdown(
                         id="browse-pos",
                         options=POSITION_OPTIONS,
@@ -668,7 +715,6 @@ def browse_layout():
                         className="modern-dropdown"
                     ),
 
-                    # --- Primary action ---
                     html.Div(
                         dbc.Button(
                             "RUN ANALYSIS",
@@ -681,19 +727,120 @@ def browse_layout():
                 ],
             ),
 
+            html.Div(
+                id="browse-filters-wrapper",
+                style={"display": "none"},
+                children=[
+
+                    # ---------- FILTER ACCORDION ----------
+                    dbc.Accordion(
+                                        [
+                                            dbc.AccordionItem(
+                            title="Filters",
+                            children=[
+                                # ================= PLAYER FILTERS =================
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            "PLAYER FILTERS",
+                                            className="filter-group-header"
+                                        ),
+
+                                        dbc.Row(
+                                            className="g-2",
+                                            children=[
+                                                dbc.Col(
+                                                    dcc.Dropdown(
+                                                        id="filter-player",
+                                                        placeholder="Player",
+                                                        className="modern-dropdown compact-dropdown",
+                                                        multi=True
+                                                    ),
+                                                    xs=12, md=4
+                                                ),
+                                                dbc.Col(
+                                                    dcc.Dropdown(
+                                                        id="filter-player-team",
+                                                        options=[{"label": t, "value": t} for t in PLAYER_TEAM_OPTIONS],
+                                                        placeholder="Player Team",
+                                                        className="modern-dropdown compact-dropdown",
+                                                        multi=True
+                                                    ),
+                                                    xs=12, md=4
+                                                ),
+                                                dbc.Col(
+                                                    dcc.Dropdown(
+                                                        id="filter-player-conf",
+                                                        options=[{"label": c, "value": c} for c in PLAYER_CONF_OPTIONS],
+                                                        placeholder="Player Conference",
+                                                        className="modern-dropdown compact-dropdown",
+                                                        multi=True
+                                                    ),
+                                                    xs=12, md=4
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                    className="mb-4"
+                                ),
+
+                                # ================= TARGET FILTERS =================
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            "TARGET FILTERS",
+                                            className="filter-group-header"
+                                        ),
+
+                                        dbc.Row(
+                                            className="g-2",
+                                            children=[
+                                                dbc.Col(
+                                                    dcc.Dropdown(
+                                                        id="filter-target-team",
+                                                        options=[{"label": t, "value": t} for t in TARGET_TEAM_OPTIONS],
+                                                        placeholder="Target Team",
+                                                        className="modern-dropdown compact-dropdown",
+                                                        multi=True
+                                                    ),
+                                                    xs=12, md=6
+                                                ),
+                                                dbc.Col(
+                                                    dcc.Dropdown(
+                                                        id="filter-target-conf",
+                                                        options=[{"label": c, "value": c} for c in TARGET_CONF_OPTIONS],
+                                                        placeholder="Target Conference",
+                                                        className="modern-dropdown compact-dropdown",
+                                                        multi=True
+                                                    ),
+                                                    xs=12, md=6
+                                                ),
+                                            ],
+                                        ),
+                                    ]
+                                ),
+                            ],
+                        )
+
+                        ],
+                        start_collapsed=True,
+                        flush=True,
+                        className="mt-3"
+                    ),
+
+            ]),
+
             html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
 
             html.Div(
                 className="results-wrapper",
                 children=[
-                    dbc.Spinner(
-                        html.Div(id="browse-results"),
-                        color="primary"
-                    )
+                    dbc.Spinner(html.Div(id="browse-results"))
                 ]
             )
         ]
     )
+
 
 
 
@@ -1016,52 +1163,183 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class):
 ##### Enter Position
 #####
 
+# @app.callback(
+#     Output("browse-results", "children"),
+#     Input("browse-run", "n_clicks"),
+#     State("browse-pos", "value"),
+#     prevent_initial_call=True
+# )
+# def run_browse(n_clicks, pos_class):
+#     if not pos_class:
+#         return html.Div("Select a position to run the analysis.")
+
+#     df = browse_compatibility(pos_class)
+
+#     if df.empty:
+#         return html.Div("No results found for this position.")
+
+#     return dash_table.DataTable(
+#         id="browse-table",
+#         data=df.to_dict("records"),
+#         columns=[
+#             {"name": "Player", "id": "player"},
+#             {"name": "Player Team", "id": "player_team"},
+#             {"name": "Target Team", "id": "target_team"},
+#             {
+#                 "name": "Similarity Score",
+#                 "id": "score",
+#                 "type": "numeric",
+#                 "format": {"specifier": ".3f"}
+#             },
+#             {
+#                 "name": "Style Sim.",
+#                 "id": "style_sim",
+#                 "type": "numeric",
+#                 "format": {"specifier": ".3f"}
+#             },
+#             {
+#                 "name": "Stat Sim.",
+#                 "id": "stat_sim",
+#                 "type": "numeric",
+#                 "format": {"specifier": ".3f"}
+#             },
+#         ],
+#         sort_action="native",
+#         page_size=20,
+#         row_selectable="single",
+#         # --- Container ---
+#         style_table={
+#             "overflowX": "auto",
+#             "border": "none",
+#         },
+
+#         # --- Cells ---
+#         style_cell={
+#             "padding": "12px 14px",
+#             "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont",
+#             "fontSize": "14px",
+#             "color": "#1f2937",
+#             "backgroundColor": "white",
+#             "border": "none",
+#             "whiteSpace": "nowrap",
+#         },
+
+#         # --- Header ---
+#         style_header={
+#             "backgroundColor": "#f3f4f6",
+#             "color": "#374151",
+#             "fontWeight": "600",
+#             "fontSize": "13px",
+#             "textTransform": "uppercase",
+#             "letterSpacing": "0.04em",
+#             "borderBottom": "1px solid #e5e7eb",
+#             "padding": "10px 14px",
+#         },
+
+#         # --- Rows ---
+#         style_data_conditional=[
+#             # subtle zebra striping
+#             {
+#                 "if": {"row_index": "odd"},
+#                 "backgroundColor": "#f8fafc",
+#             },
+
+#             # hover effect (robotic / modern)
+#             {
+#                 "if": {"state": "active"},
+#                 "backgroundColor": "#e8eef6",
+#                 "border": "none",
+#             },
+
+#             # numeric columns slightly bolder
+#             {
+#                 "if": {"column_id": ["score", "style_sim", "stat_sim"]},
+#                 "fontWeight": "500",
+#                 "color": "#111827",
+#             },
+
+#             # emphasize similarity score most
+#             {
+#                 "if": {"column_id": "score"},
+#                 "fontWeight": "600",
+#             },
+#         ],
+#         style_as_list_view=True,
+#     )
+
 @app.callback(
     Output("browse-results", "children"),
     Input("browse-run", "n_clicks"),
     State("browse-pos", "value"),
+    State("filter-player", "value"),
+    State("filter-player-team", "value"),
+    State("filter-player-conf", "value"),
+    State("filter-target-team", "value"),
+    State("filter-target-conf", "value"),
     prevent_initial_call=True
 )
-def run_browse(n_clicks, pos_class):
-    if not pos_class:
-        return html.Div("Select a position to run the analysis.")
+def run_browse(
+        n_clicks,
+        pos_class,
+        f_player,
+        f_player_team,
+        f_player_conf,
+        f_target_team,
+        f_target_conf,
+    ):
+        if not pos_class:
+            return html.Div("Select a position to run the analysis.")
 
-    df = browse_compatibility(pos_class)
+        df = BROWSE_TABLES[pos_class].copy()
 
-    if df.empty:
-        return html.Div("No results found for this position.")
+        # --- apply filters ---
+        if f_player:
+            df = df[df["player"].isin(f_player)]
 
-    return dash_table.DataTable(
-        id="browse-table",
-        data=df.to_dict("records"),
-        columns=[
-            {"name": "Player", "id": "player"},
-            {"name": "Player Team", "id": "player_team"},
-            {"name": "Target Team", "id": "target_team"},
-            {
-                "name": "Similarity Score",
-                "id": "score",
-                "type": "numeric",
-                "format": {"specifier": ".3f"}
-            },
-            {
-                "name": "Style Sim.",
-                "id": "style_sim",
-                "type": "numeric",
-                "format": {"specifier": ".3f"}
-            },
-            {
-                "name": "Stat Sim.",
-                "id": "stat_sim",
-                "type": "numeric",
-                "format": {"specifier": ".3f"}
-            },
-        ],
-        sort_action="native",
-        page_size=20,
-        row_selectable="single",
-        # --- Container ---
-        style_table={
+        if f_player_team:
+            df = df[df["player_team"].isin(f_player_team)]
+
+        if f_target_team:
+            df = df[df["target_team"].isin(f_target_team)]
+
+        if f_player_conf:
+            df = df.merge(
+                all_player_df[["team", "conf"]].drop_duplicates(),
+                left_on="player_team",
+                right_on="team",
+                how="left"
+            )
+            df = df[df["conf"].isin(f_player_conf)]
+
+        if f_target_conf:
+            df = df.merge(
+                all_player_df[["team", "conf"]].drop_duplicates(),
+                left_on="target_team",
+                right_on="team",
+                how="left",
+                suffixes=("", "_target")
+            )
+            df = df[df["conf_target"].isin(f_target_conf)]
+
+        if df.empty:
+            return html.Div("No results match the selected filters.")
+
+        return dash_table.DataTable(
+            id="browse-table",
+            data=df.to_dict("records"),
+            columns=[
+                {"name": "Player", "id": "player"},
+                {"name": "Player Team", "id": "player_team"},
+                {"name": "Target Team", "id": "target_team"},
+                {"name": "Similarity Score", "id": "score", "type": "numeric", "format": {"specifier": ".3f"}},
+                {"name": "Style Sim.", "id": "style_sim", "type": "numeric", "format": {"specifier": ".3f"}},
+                {"name": "Stat Sim.", "id": "stat_sim", "type": "numeric", "format": {"specifier": ".3f"}},
+            ],
+            sort_action="native",
+            page_size=20,
+            row_selectable="single",
+            style_as_list_view=True,
+            style_table={
             "overflowX": "auto",
             "border": "none",
         },
@@ -1117,8 +1395,9 @@ def run_browse(n_clicks, pos_class):
                 "fontWeight": "600",
             },
         ],
-        style_as_list_view=True,
-    )
+        )
+
+
 
 @app.callback(
     Output("selected-matchup", "data", allow_duplicate=True),
@@ -1493,6 +1772,28 @@ def update_matchup_from_dropdowns(player, team):
         "posClass": pos_class
     }
 
+
+@app.callback(
+    Output("browse-filters-wrapper", "style"),
+    Input("browse-run", "n_clicks"),
+    prevent_initial_call=True
+)
+def show_filters_after_run(n_clicks):
+    return {"display": "block"}
+
+
+@app.callback(
+    Output("filter-player", "options"),
+    Input("browse-pos", "value"),
+)
+def update_player_filter_options(pos_class):
+    if not pos_class:
+        return []
+
+    return [
+        {"label": p, "value": p}
+        for p in PLAYER_OPTIONS_BY_POS[pos_class]
+    ]
 
 
 
