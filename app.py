@@ -162,17 +162,17 @@ for k, df in BROWSE_TABLES.items():
 
 
 PLAYER_OPTIONS_BY_POS = {
-    "Guard": sorted(
+    "Guard": (
         all_player_df
         .query("posClass == 'Guard' and year == @CURRENT_SEASON")["player_name"]
         .unique()
     ),
-    "Wing": sorted(
+    "Wing": (
         all_player_df
         .query("posClass == 'Wing' and year == @CURRENT_SEASON")["player_name"]
         .unique()
     ),
-    "Big": sorted(
+    "Big": (
         all_player_df
         .query("posClass == 'Big' and year == @CURRENT_SEASON")["player_name"]
         .unique()
@@ -522,9 +522,9 @@ def matchup_layout():
         className="page-center",
         children=[
             html.Div(
-                className="hero-box hero-box-compact",
+                className="hero-box",
                 children=[
-                    html.H4("Player ↔ Team", className="hero-title-sm"),
+                    html.H4("Player ↔ Team", className="hero-title"),
                     html.P(
                         "Select a player and team to see similarity details. "
                         "This may take up to 30 seconds.",
@@ -540,7 +540,7 @@ def matchup_layout():
                                     options=player_2026_options,
                                     placeholder="Player (2026)…",
                                     clearable=False,
-                                    className="modern-dropdown compact-dropdown",
+                                    className="modern-dropdown",
                                 ),
                                 xs=12, md=5, lg=4
                             ),
@@ -554,7 +554,7 @@ def matchup_layout():
                                     ],
                                     placeholder="Team…",
                                     clearable=False,
-                                    className="modern-dropdown compact-dropdown",
+                                    className="modern-dropdown",
                                 ),
                                 xs=12, md=5, lg=4
                             ),
@@ -604,7 +604,7 @@ def about_layout():
                     html.Li(".7 - .9 → Very similar"),
                     html.Li(".5 - .7 → Somewhat similar"),
                     html.Li(".2 - .5 → Some small similarities"),
-                    html.Li(">.2 → Not similar"),
+                    html.Li("<.2 → Not similar"),
                 ]),
             ],
         ),
