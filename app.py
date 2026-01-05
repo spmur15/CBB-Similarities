@@ -628,6 +628,16 @@ def about_layout():
                 html.Ul([
                     html.Li("Dribble pull-up"),
                     html.Li("Mid-range"),
+                    html.Li("Perimeter sniper"),
+                ]),
+            ],
+        ),
+        html.Div(
+            [
+                html.Strong("Passing"),
+                html.Ul([
+                    html.Li("Pick-and-roll passer"),
+                    html.Li("Hits cutter"),
                 ]),
             ],
         ),
@@ -1757,6 +1767,8 @@ def update_matchup_chart(data, tab):
         plot_bgcolor='rgba(0,0,0,0)',      # Inside the axes
         paper_bgcolor='rgba(0,0,0,0)'  # Outside the axes
     )
+
+    fig.update_layout(height=750, autosize=False)
 
 
 
