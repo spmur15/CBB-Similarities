@@ -269,7 +269,7 @@ def enter_position(pos):
         all_player_df
         .query("year == @CURRENT_SEASON")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 350")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -306,7 +306,7 @@ def enter_position(pos):
     results[['style_sim', 'stat_sim']].corr()
     results.columns = results.columns.str.replace('sim', 'similarity')
 
-    print(results.sort_values(by='similarity_score', ascending=False)[:10].round(2).reset_index(drop=True))
+    #print(results.sort_values(by='similarity_score', ascending=False)[:10].round(2).reset_index(drop=True))
 
     return results
 
@@ -363,21 +363,21 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
 
     # ---- derive position from player ----
     POS_CLASS = player_row_all["posClass"]
-    print(POS_CLASS)
-
-
+    #print(POS_CLASS)
 
     # ---- filter players for PCA training ----
     players_pos = (
         all_player_df
         .query("year == @year")
         .query("posClass == @POS_CLASS")
-        .query("off_poss > 350")
+        .query("off_poss > 400")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
+    #print(players_pos)
+
     # optional stability filter
-    players_pos = players_pos.query("off_poss >= 100")
+    # players_pos = players_pos.query("off_poss >= 100")
 
     # ---- fit model ----
     model = DualStylePCAModel(style_weight=style_weight)
@@ -448,7 +448,7 @@ def enter_team(
         all_player_df
         .query("year == @year")
         .query("posClass == @pos_class")
-        .query("off_poss > 350")
+        .query("off_poss > 400")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
@@ -492,7 +492,7 @@ def enter_team(
 def browse_compatibility(
     pos_class,
     year=2026,
-    min_poss=350,
+    min_poss=600,
     top_players=40,
     top_n_per_player=3,
     style_weight=0.7
@@ -562,7 +562,7 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     model.fit(
         all_player_df
         .query("year == @year and posClass == @pos_class")
-        .query("off_poss > 350")
+        .query("off_poss > 600")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
 
