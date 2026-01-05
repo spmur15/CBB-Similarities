@@ -1,0 +1,165 @@
+/* Page centering */
+.page-center {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 48px;
+}
+
+/* Hero container */
+.hero-box {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Headings */
+.hero-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1f2937; /* slate-800 */
+}
+
+.hero-subtitle {
+  font-size: 15px;
+  color: #6b7280; /* gray-500 */
+  margin-bottom: 18px;
+}
+
+/* --- React Select (dcc.Dropdown) --- */
+.modern-dropdown .Select-control {
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 0 14px;
+  font-size: 18px;
+  transition: all 0.15s ease;
+}
+
+/* Hover */
+.modern-dropdown .Select-control:hover {
+  border-color: #c7d2fe;
+}
+
+/* Focus */
+.modern-dropdown.is-focused .Select-control {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+/* Placeholder */
+.modern-dropdown .Select-placeholder {
+  line-height: 56px;
+  color: #9ca3af;
+}
+
+/* Selected value */
+.modern-dropdown .Select-value-label {
+  line-height: 56px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Dropdown arrow */
+.modern-dropdown .Select-arrow {
+  border-color: #6b7280 transparent transparent;
+}
+
+/* Menu */
+.modern-dropdown .Select-menu-outer {
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+  border: none;
+  margin-top: 6px;
+}
+
+/* Options */
+.modern-dropdown .Select-option {
+  padding: 12px 16px;
+  font-size: 16px;
+}
+
+.modern-dropdown .Select-option.is-focused {
+  background-color: #eef2ff;
+}
+
+.modern-dropdown .Select-option.is-selected {
+  background-color: #6366f1;
+  color: white;
+}
+
+/* Results spacing */
+.results-wrapper {
+  margin-top: 24px;
+}
+
+
+/* Smaller control bar for Matchup page */
+.compact-dropdown .Select-control {
+  height: 40px;
+  min-height: 40px;
+  font-size: 14px;
+  padding: 0 10px;
+  border-radius: 8px;
+}
+
+.compact-dropdown .Select-placeholder,
+.compact-dropdown .Select-value-label {
+  line-height: 38px;
+}
+
+.compact-dropdown .Select-arrow-zone {
+  padding-top: 2px;
+}
+
+/* Slightly lighter shadow so it doesn’t compete */
+.compact-dropdown .Select-control {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+
+/* =========================
+   Robotic / Compute Button
+   ========================= */
+.robot-button {
+  background: linear-gradient(180deg, #2b2f33, #1f2327);
+  color: #f1f3f5;
+  border: 1px solid #3a3f44;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: all 0.15s ease-in-out;
+}
+
+/* Hover */
+.robot-button:hover {
+  background: linear-gradient(180deg, #343a40, #262b30);
+  border-color: #4a5056;
+  transform: translateY(-1px);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Active / pressed */
+.robot-button:active {
+  transform: translateY(0);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* Disabled (future-proof) */
+.robot-button:disabled {
+  background: #2a2e32;
+  color: #9aa0a6;
+  border-color: #2a2e32;
+  box-shadow: none;
+  cursor: not-allowed;
+}
