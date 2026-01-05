@@ -426,7 +426,7 @@ def matchup_layout():
                     html.P(
                         "Select a player and team to see similarity details. "
                         "This may take up to 30 seconds.",
-                        className="hero-subtitle-sm"
+                        className="hero-subtitle"
                     ),
 
                     dbc.Row(
@@ -485,8 +485,18 @@ def about_layout():
     return html.Div([
         html.H4("About This Tool"),
         html.Hr(style={"opacity": 0.3}),
-        html.P("This app evaluates stylistic and statistical similarity between college basketball players and team systems."),
-        html.P("Scores are based on position-specific PCA embeddings of style and stat profiles."),
+        html.P("This app uses data from hoop-explorer.com to evaluates stylistic and statistical similarity between college basketball players and team systems."),
+        html.P("Scores are based on PCA embeddings of style and stat profiles."),
+        html.P("Positions are Guard, Wing, and Big. Comparisons are position-specific."),
+        html.P("For example, if you want to compare Nick Townsend (wing) and UConn, the similarity scores are drawn from UConn's wings over the desired subset of seasons."),
+        html.H5("Styles"),
+
+        html.H5("Stats"),
+
+        html.H5("Positions"),
+
+
+
         html.P("Data source: Hoop-Explorer.com")
         
     ])
@@ -555,15 +565,19 @@ def browse_layout():
 # -------------------------------------------------
 # APP LAYOUT
 # -------------------------------------------------
-app.layout = html.Div([
-    dcc.Location(id="url"),
-    dcc.Store(id="selected-matchup", storage_type="session"),
-    html.Div(id="navbar"),
-    html.Div(id="page-content", style={"padding": "16px"}),
-    html.Br(),
-    #html.Hr(style={"opacity": 0.3}),
-    html.Br()
-])
+app.layout = html.Div(
+    style={
+        "backgroundColor": "#f8fafc",   # 👈 modern off-white
+        "minHeight": "100vh"
+    },
+    children=[
+        dcc.Location(id="url"),
+        dcc.Store(id="selected-matchup", storage_type="session"),
+        html.Div(id="navbar"),
+        html.Div(id="page-content", style={"padding": "24px"}),
+    ]
+)
+
 
 # -------------------------------------------------
 # CALLBACKS
@@ -629,39 +643,84 @@ def update_player_results(player_name):
         data=df.to_dict("records"),
         columns=[
             {"name": "Team", "id": "team"},
-            {"name": "Score", "id": "score", "type": "numeric", "format": {"specifier": ".3f"}},
-            {"name": "Style", "id": "style_sim", "type": "numeric", "format": {"specifier": ".3f"}},
-            {"name": "Stats", "id": "stat_sim", "type": "numeric", "format": {"specifier": ".3f"}},
+            {
+                "name": "Similarity Score",
+                "id": "score",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Style Sim.",
+                "id": "style_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Stat Sim.",
+                "id": "stat_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
         ],
         sort_action="native",
         row_selectable="single",
         page_size=10,
-        style_table={"overflowX": "auto"},
+        style_table={
+            "overflowX": "auto",
+            "border": "none",
+        },
+
+        # --- Cells ---
         style_cell={
-            "padding": "8px",
-            "fontFamily": "sans-serif",
-            "fontSize": "14px"
+            "padding": "12px 14px",
+            "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont",
+            "fontSize": "14px",
+            "color": "#1f2937",
+            "backgroundColor": "white",
+            "border": "none",
+            "whiteSpace": "nowrap",
         },
-        # style_header={
-        #     "fontWeight": "bold",
-        #     "backgroundColor": "#f8f9fa"
-        # },
-        style_as_list_view=True,
-        style_data={
-        'color': 'black',
-        'backgroundColor': 'white'
-        },
-        style_data_conditional=[
-            {
-                'if': {'row_index': 'odd'},
-                'backgroundColor': '#cfd9e8',
-            }
-        ],
+
+        # --- Header ---
         style_header={
-            'backgroundColor': '#c3d2e6',
-            'color': 'black',
-            'fontWeight': 'bold'
+            "backgroundColor": "#f3f4f6",
+            "color": "#374151",
+            "fontWeight": "600",
+            "fontSize": "13px",
+            "textTransform": "uppercase",
+            "letterSpacing": "0.04em",
+            "borderBottom": "1px solid #e5e7eb",
+            "padding": "10px 14px",
         },
+
+        # --- Rows ---
+        style_data_conditional=[
+            # subtle zebra striping
+            {
+                "if": {"row_index": "odd"},
+                "backgroundColor": "#f8fafc",
+            },
+
+            # hover effect (robotic / modern)
+            {
+                "if": {"state": "active"},
+                "backgroundColor": "#e8eef6",
+                "border": "none",
+            },
+
+            # numeric columns slightly bolder
+            {
+                "if": {"column_id": ["score", "style_sim", "stat_sim"]},
+                "fontWeight": "500",
+                "color": "#111827",
+            },
+
+            # emphasize similarity score most
+            {
+                "if": {"column_id": "score"},
+                "fontWeight": "600",
+            },
+        ],
     )
 
 @app.callback(
@@ -707,46 +766,92 @@ def update_team_results(team_name, pos_class):
         return html.Div("This may take 30 seconds or more.")
 
     df = enter_team(team_name, pos_class)
+    print(df)
 
     return dash_table.DataTable(
         id="team-players-table",
         data=df.to_dict("records"),
         columns=[
             {"name": "Player", "id": "player_name"},
-            {"name": "Current Team", "id": "player_team"},
-            {"name": "Score", "id": "score", "type": "numeric", "format": {"specifier": ".3f"}},
-            {"name": "Style", "id": "style_sim", "type": "numeric", "format": {"specifier": ".3f"}},
-            {"name": "Stats", "id": "stat_sim", "type": "numeric", "format": {"specifier": ".3f"}},
+            {"name": "Player Team", "id": "player_team"},
+            {
+                "name": "Similarity Score",
+                "id": "score",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Style Sim.",
+                "id": "style_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Stat Sim.",
+                "id": "stat_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
         ],
         sort_action="native",
         row_selectable="single",
         page_size=10,
-        style_table={"overflowX": "auto"},
+        style_table={
+            "overflowX": "auto",
+            "border": "none",
+        },
+
+        # --- Cells ---
         style_cell={
-            "padding": "8px",
-            "fontFamily": "sans-serif",
-            "fontSize": "14px"
+            "padding": "12px 14px",
+            "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont",
+            "fontSize": "14px",
+            "color": "#1f2937",
+            "backgroundColor": "white",
+            "border": "none",
+            "whiteSpace": "nowrap",
         },
-        # style_header={
-        #     "fontWeight": "bold",
-        #     "backgroundColor": "#f8f9fa"
-        # },
-        style_as_list_view=True,
-        style_data={
-        'color': 'black',
-        'backgroundColor': 'white'
-        },
-        style_data_conditional=[
-            {
-                'if': {'row_index': 'odd'},
-                'backgroundColor': '#cfd9e8',
-            }
-        ],
+
+        # --- Header ---
         style_header={
-            'backgroundColor': '#c3d2e6',
-            'color': 'black',
-            'fontWeight': 'bold'
+            "backgroundColor": "#f3f4f6",
+            "color": "#374151",
+            "fontWeight": "600",
+            "fontSize": "13px",
+            "textTransform": "uppercase",
+            "letterSpacing": "0.04em",
+            "borderBottom": "1px solid #e5e7eb",
+            "padding": "10px 14px",
         },
+
+        # --- Rows ---
+        style_data_conditional=[
+            # subtle zebra striping
+            {
+                "if": {"row_index": "odd"},
+                "backgroundColor": "#f8fafc",
+            },
+
+            # hover effect (robotic / modern)
+            {
+                "if": {"state": "active"},
+                "backgroundColor": "#e8eef6",
+                "border": "none",
+            },
+
+            # numeric columns slightly bolder
+            {
+                "if": {"column_id": ["score", "style_sim", "stat_sim"]},
+                "fontWeight": "500",
+                "color": "#111827",
+            },
+
+            # emphasize similarity score most
+            {
+                "if": {"column_id": "score"},
+                "fontWeight": "600",
+            },
+        ],
     )
 
 @app.callback(
@@ -797,38 +902,85 @@ def run_browse(n_clicks, pos_class):
             {"name": "Player", "id": "player"},
             {"name": "Player Team", "id": "player_team"},
             {"name": "Target Team", "id": "target_team"},
-            {"name": "Score", "id": "score", "type": "numeric",
-             "format": {"specifier": ".3f"}},
-            {"name": "Style", "id": "style_sim", "type": "numeric",
-             "format": {"specifier": ".3f"}},
-            {"name": "Stats", "id": "stat_sim", "type": "numeric",
-             "format": {"specifier": ".3f"}},
+            {
+                "name": "Similarity Score",
+                "id": "score",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Style Sim.",
+                "id": "style_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
+            {
+                "name": "Stat Sim.",
+                "id": "stat_sim",
+                "type": "numeric",
+                "format": {"specifier": ".3f"}
+            },
         ],
         sort_action="native",
         page_size=20,
         row_selectable="single",
-        style_table={"overflowX": "auto"},
+        # --- Container ---
+        style_table={
+            "overflowX": "auto",
+            "border": "none",
+        },
+
+        # --- Cells ---
         style_cell={
-            "padding": "8px",
-            "fontFamily": "sans-serif",
-            "fontSize": "14px"
+            "padding": "12px 14px",
+            "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont",
+            "fontSize": "14px",
+            "color": "#1f2937",
+            "backgroundColor": "white",
+            "border": "none",
+            "whiteSpace": "nowrap",
         },
-        
-        style_data={
-        'color': 'black',
-        'backgroundColor': 'white'
-        },
-        style_data_conditional=[
-            {
-                'if': {'row_index': 'odd'},
-                'backgroundColor': '#cfd9e8',
-            }
-        ],
+
+        # --- Header ---
         style_header={
-            'backgroundColor': '#c3d2e6',
-            'color': 'black',
-            'fontWeight': 'bold'
+            "backgroundColor": "#f3f4f6",
+            "color": "#374151",
+            "fontWeight": "600",
+            "fontSize": "13px",
+            "textTransform": "uppercase",
+            "letterSpacing": "0.04em",
+            "borderBottom": "1px solid #e5e7eb",
+            "padding": "10px 14px",
         },
+
+        # --- Rows ---
+        style_data_conditional=[
+            # subtle zebra striping
+            {
+                "if": {"row_index": "odd"},
+                "backgroundColor": "#f8fafc",
+            },
+
+            # hover effect (robotic / modern)
+            {
+                "if": {"state": "active"},
+                "backgroundColor": "#e8eef6",
+                "border": "none",
+            },
+
+            # numeric columns slightly bolder
+            {
+                "if": {"column_id": ["score", "style_sim", "stat_sim"]},
+                "fontWeight": "500",
+                "color": "#111827",
+            },
+
+            # emphasize similarity score most
+            {
+                "if": {"column_id": "score"},
+                "fontWeight": "600",
+            },
+        ],
         style_as_list_view=True,
     )
 
@@ -1150,6 +1302,11 @@ def update_matchup_chart(data, tab):
         gridwidth=1,
 
         zeroline=False,
+    )
+
+    fig.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',      # Inside the axes
+        paper_bgcolor='rgba(0,0,0,0)'  # Outside the axes
     )
 
 
