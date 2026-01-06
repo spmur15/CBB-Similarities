@@ -78,13 +78,13 @@ STAT_COLS = [
     'off_ftr',
     'off_twoprimr',
     'off_threepr',
+    'off_usage',
     'off_assist',
     'off_to',
     'off_orb',
     'def_orb',
     'def_blk',
     'def_stl',
-    'off_usage'
 ]
 
 
@@ -268,7 +268,7 @@ def batch_player_team_compatibility(
     return pd.DataFrame(results)
 
 def enter_position(pos):
-    
+
     CURRENT_SEASON = 2026
     POS_CLASS = pos
 
