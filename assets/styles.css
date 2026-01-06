@@ -57,7 +57,7 @@
 .modern-dropdown .Select-value-label {
   line-height: 56px;
   font-weight: 500;
-  color: #111827;
+  color: #6b7280
 }
 
 /* Dropdown arrow */
@@ -101,11 +101,13 @@
   font-size: 14px;
   padding: 0 10px;
   border-radius: 8px;
+  font-color: #6b7280;
 }
 
 .compact-dropdown .Select-placeholder,
 .compact-dropdown .Select-value-label {
   line-height: 38px;
+  font-color: #6b7280;
 }
 
 .compact-dropdown .Select-arrow-zone {
@@ -117,6 +119,11 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.10);
 }
 
+/* Selected value (when dropdown is closed) */
+.compact-dropdown .Select-value-label {
+  color: #6b7280;   /* slate-500 */
+  font-size: 14px;
+}
 
 /* =========================
    Robotic / Compute Button
@@ -211,9 +218,9 @@
    ============================ */
 .year-accordion .accordion-button.collapsed {
   background-color: #ffffff;          /* 👈 match hero dropdown bg */
-  color: #9ca3af;
+  color: #6b7280;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 14px;
   padding: 12px 16px;
 
