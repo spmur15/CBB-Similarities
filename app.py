@@ -1169,9 +1169,11 @@ def update_player_results(player_name, start_year, end_year):
     Input("player-teams-table", "selected_rows"),
     State("player-teams-table", "data"),
     State("player-name", "value"),
+    State("player-start-year", "value"),
+    State("player-end-year", "value"),
     prevent_initial_call=True
 )
-def select_team_for_player(selected_rows, table_data, player_name):
+def select_team_for_player(selected_rows, table_data, player_name, start_year, end_year):
     if not selected_rows:
         raise PreventUpdate
 
@@ -1188,7 +1190,9 @@ def select_team_for_player(selected_rows, table_data, player_name):
     return {
         "player": player_name,
         "team": row["team"],
-        "posClass": pos_class
+        "posClass": pos_class,
+        "start_year": start_year,
+        "end_year": end_year
     }
 
 
@@ -1303,9 +1307,11 @@ def update_team_results(team_name, pos_class, start_year, end_year):
     State("team-players-table", "data"),
     State("team-name", "value"),
     State("team-pos", "value"),
+    State("team-start-year", "value"),
+    State("team-end-year", "value"),
     prevent_initial_call=True
 )
-def select_player_for_team(selected_rows, table_data, team_name, pos_class):
+def select_player_for_team(selected_rows, table_data, team_name, pos_class, start_year, end_year):
     if not selected_rows:
         raise PreventUpdate
 
@@ -1314,8 +1320,11 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class):
     return {
         "player": row["player_name"],
         "team": team_name,
-        "posClass": pos_class
+        "posClass": pos_class,
+        "start_year": start_year,
+        "end_year": end_year
     }
+
 
 
 
@@ -1911,9 +1920,10 @@ def populate_matchup_dropdowns(data):
     Output("selected-matchup", "data", allow_duplicate=True),
     Input("matchup-player", "value"),
     Input("matchup-team", "value"),
+    State("selected-matchup", "data"),
     prevent_initial_call=True
 )
-def update_matchup_from_dropdowns(player, team):
+def update_matchup_from_dropdowns(player, team, existing):
     if not player or not team:
         raise PreventUpdate
 
@@ -1927,8 +1937,11 @@ def update_matchup_from_dropdowns(player, team):
     return {
         "player": player,
         "team": team,
-        "posClass": pos_class
+        "posClass": pos_class,
+        "start_year": existing.get("start_year", 2022),
+        "end_year": existing.get("end_year", CURRENT_SEASON)
     }
+
 
 
 @app.callback(
@@ -1979,6 +1992,19 @@ def populate_filters(_, pos):
 
 
 
+@app.callback(
+    Output("matchup-start-year", "value"),
+    Output("matchup-end-year", "value"),
+    Input("selected-matchup", "data"),
+)
+def sync_matchup_years(data):
+    if not data:
+        raise PreventUpdate
+
+    return (
+        data.get("start_year", 2022),
+        data.get("end_year", CURRENT_SEASON)
+    )
 
 
 
