@@ -108,6 +108,27 @@ STAT_LABEL_MAP = {
 }
 
 
+
+# 'off_style_rim_attack_pct',
+#     'off_style_attack_kick_pct',
+#     'off_style_perimeter_cut_pct',
+#     'off_style_dribble_jumper_pct',
+#     'off_style_mid_range_pct',
+#     'off_style_perimeter_sniper_pct',
+#     'off_style_hits_cutter_pct',
+#     'off_style_pnr_passer_pct',
+#     'off_style_big_cut_roll_pct',
+#     'off_style_pick_pop_pct',
+#     'off_style_high_low_pct',
+#     'off_style_post_up_pct',
+#     'off_style_post_kick_pct',
+#     'off_style_reb_scramble_pct',
+#     'off_style_transition_pct',
+
+
+
+
+
 # -------------------------------------------------
 # LOAD PRECOMPUTED BROWSE TABLES
 # -------------------------------------------------
@@ -138,6 +159,61 @@ for pos, df in BROWSE_TABLES.items():
     BROWSE_TABLES[pos] = df.round(3)
 
 
+GROUPS = {
+    "Slash": [
+        "Rim Attack",
+        "Attack Kick",
+        "Perimeter Cut"
+    ],
+    "Jumper": [
+        "Dribble Jumper",
+        "Mid Range",
+        "Perimeter Sniper"
+    ],
+    "Pass": [
+        "Pnr Passer",
+        "Hits Cutter"
+    ],
+    "Screen": [
+        "Big Cut/Roll",
+        "Pick Pop"
+    ],
+    "Post": [
+        "Post Up",
+        "Post Kick",
+        "High Low"
+    ],
+    "Misc": [
+        "Transition",
+        "Reb Scramble"
+    ]
+}
+
+GROUPS2 = {
+    "Shot Diet": [
+        "FTR",
+        "Rim Rate",
+        "3P Rate",
+        "Usage%"
+    ],
+    "Pass": [
+        "AST%",
+        "TOV%",
+    ],
+    "PHYSICALITY": [
+        "ORB%",
+        "DRB%",
+        "BLK%",
+        "STL%"
+    ]
+}
+
+# categories = [
+#             "FTR", "Rim Rate", "3P Rate",
+#             "AST%", "TOV%", "ORB%",
+#             "DRB%", "BLK%",
+#             "STL%", "Usage%"
+#         ]
 
 # -------------------------------------------------
 # BROWSE FILTER OPTIONS (derived once)
@@ -593,7 +669,7 @@ def team_layout():
 
 
 def matchup_layout():
-    return html.Div(
+    return html.Div([html.Div(
         className="page-center",
         children=[
             html.Div(
@@ -666,18 +742,43 @@ def matchup_layout():
 
             html.Div(id="matchup-summary", className="mb-3"),
 
-            dbc.Tabs(
-                [
-                    dbc.Tab(label="Style", tab_id="style"),
-                    dbc.Tab(label="Stats", tab_id="stats"),
-                ],
-                id="matchup-tabs",
-                active_tab="style"
-            ),
+    ]),
 
-            dcc.Graph(id="matchup-bar-chart"),
+    html.Div([
+
+        dbc.Row(
+            dbc.Col(
+                dbc.Tabs(
+                        [
+                            dbc.Tab(label="Style", tab_id="style"),
+                            dbc.Tab(label="Stats", tab_id="stats"),
+                        ],
+                        id="matchup-tabs",
+                        active_tab="style"
+                    ),
+                    xs=12,   # mobile
+                    md=12,   # tablet
+                    lg=10,    # desktop
+                    xl=6    # wide screens
+                    ),
+                    justify='center'),
+            dbc.Row(
+               dbc.Col(
+                    dcc.Graph(
+                        id="matchup-bar-chart",
+                        config={"displayModeBar": False}
+                    ),
+                    xs=12,   # mobile
+                    md=12,   # tablet
+                    lg=10,    # desktop
+                    xl=6    # wide screens
+                ),
+                justify="center"
+            )
+
         ]
     )
+    ])
 
 
 
@@ -1717,6 +1818,11 @@ def update_matchup_chart(data, tab, start_year, end_year):
             c.replace("off_style_", "")
             .replace("_pct", "")
             .replace("_", " ")
+            .replace('dribble jumper', 'off-dribble')
+            .replace('perimeter sniper', '3P sniper')
+            .replace('pick pop', 'Pick & Pop')
+            .replace('pnr passer', 'P&R Passer')
+            .replace('big cut roll', 'Big Cut/Roll')
             .title()
             for c in cols
         ]
@@ -1735,7 +1841,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
 
     subtitle_text = (
         f"Team styles & stats are taken among players<br>from the team with the target<br>"
-        f"position ({pos}) from {start_year}-{end_year}"
+        f"position ({pos}) from the entered seasons ({start_year}-{end_year})"
     )
 
     
@@ -1814,17 +1920,153 @@ def update_matchup_chart(data, tab, start_year, end_year):
             title=dict(
                 text="% of possessions",
                 font=dict(size=13),
-                standoff=10
-            )
+                standoff=10,
+            ),
+            domain=[0.32, 1]
         )
+
+        categories = [
+            "Rim Attack", "Attack Kick", "Perimeter Cut",
+            "Dribble Jumper", "Mid Range", "Perimeter Sniper",
+            "Pnr Passer", "Hits Cutter",
+            "Big Cut/Roll", "Pick Pop",
+            "Post Up", "Post Kick", "High Low",
+            "Transition", "Reb Scramble"
+        ]
+
+        cat_index = {c: i for i, c in enumerate(categories)}
+
+        annotations = []
+
+        for label, stats in GROUPS.items():
+            idxs = [cat_index[s] for s in stats if s in cat_index]
+            y_center = sum(idxs) / len(idxs)
+
+            annotations.append(
+                dict(
+                    x=-0.12,                # push left of axis
+                    y=y_center,
+                    xref="paper",
+                    yref="y",
+                    text=label.upper(),
+                    showarrow=False,
+                    textangle=-90,
+                    font=dict(
+                        size=12,
+                        color="#888",
+                        family="Inter, sans-serif"
+                    ),
+                    align="center"
+                )
+            )
+
+        fig.update_layout(annotations=annotations)
+
+        shapes = []
+
+        running = 0
+        for stats in GROUPS.values():
+            running += len(stats)
+            shapes.append(
+                dict(
+                    type="line",
+                    xref="paper",
+                    yref="y",
+                    x0=-0.1,
+                    x1=0.32,
+                    y0=running - 0.5,
+                    y1=running - 0.5,
+                    line=dict(color="#e0e0e0", width=1)
+                )
+            )
+
+        fig.update_layout(shapes=shapes)
+
+        fig.update_yaxes(
+            tickfont=dict(
+                family="Inter, sans-serif",
+                size=12,
+                color="#777"
+            ),
+            ticklabelposition="outside",
+            ticks=""
+        )
+
+
+    ### STATS TAB    
     else:
         xaxis_cfg = dict(
             title=dict(
                 text="Value",
                 font=dict(size=13),
-                standoff=10
+                standoff=10,
             ),
-            tickformat=".0%" 
+            tickformat=".0%" ,
+            domain=[0.32, 1]
+        )
+
+        categories = [
+            "FTR", "Rim Rate", "3P Rate", "Usage%"
+            "AST%", "TOV%",
+            "ORB%", "DRB%", "BLK%", "STL%"
+        ]
+
+        cat_index = {c: i for i, c in enumerate(categories)}
+
+        annotations = []
+
+        for label, stats in GROUPS2.items():
+            idxs = [cat_index[s] for s in stats if s in cat_index]
+            y_center = sum(idxs) / len(idxs)
+
+            annotations.append(
+                dict(
+                    x=-0.12,                # push left of axis
+                    y=y_center+0.56,
+                    xref="paper",
+                    yref="y",
+                    text=label.upper(),
+                    showarrow=False,
+                    textangle=-90,
+                    font=dict(
+                        size=12,
+                        color="#888",
+                        family="Inter, sans-serif"
+                    ),
+                    align="center"
+                )
+            )
+
+        fig.update_layout(annotations=annotations)
+
+        shapes = []
+
+        running = 0
+        for stats in GROUPS2.values():
+            running += len(stats)
+            shapes.append(
+                dict(
+                    type="line",
+                    xref="paper",
+                    yref="y",
+                    x0=-0.1,
+                    x1=0.32,
+                    y0=running - 0.5,
+                    y1=running - 0.5,
+                    line=dict(color="#e0e0e0", width=1)
+                )
+            )
+
+        fig.update_layout(shapes=shapes)
+
+        fig.update_yaxes(
+            tickfont=dict(
+                family="Inter, sans-serif",
+                size=12,
+                color="#777"
+            ),
+            ticklabelposition="outside",
+            ticks=""
         )
 
 
@@ -1835,7 +2077,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
 
         # ⬇️ This is what actually prevents overlap
         yaxis=dict(
-            automargin=True,
+            #automargin=True,
             ticks="outside",
             domain=[0.0, 0.88]   # 👈 reserve top 18% for title/subtitle
         ),
@@ -1843,8 +2085,8 @@ def update_matchup_chart(data, tab, start_year, end_year):
         xaxis=xaxis_cfg,
 
         margin=dict(
-            l=20,
-            r=20,
+            l=100,
+            r=50,
             t=80,   # keep generous top margin
             b=30
         ),
@@ -1859,9 +2101,6 @@ def update_matchup_chart(data, tab, start_year, end_year):
             borderwidth=0,
             font=dict(size=14)
         ),
-
-        plot_bgcolor="white",
-        paper_bgcolor="white",
     )
 
     fig.update_yaxes(
@@ -1890,14 +2129,6 @@ def update_matchup_chart(data, tab, start_year, end_year):
     )
 
     fig.update_layout(height=750, autosize=False)
-
-
-
-   
-
-        
-
-
 
 
 
