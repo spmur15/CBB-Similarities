@@ -395,27 +395,29 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
     return dbc.Row(
         className="g-2 justify-content-center",
         children=[
-            dbc.Col(
+            dbc.Col([
+                html.P("Start", style={"marginBottom": "0px"}, className="hero-subtitle"),
                 dcc.Dropdown(
                     id=f"{id_prefix}-start-year",
                     options=sorted(all_player_df['year'].unique()),
                     value=start_default if start_default is not None else all_player_df['year'].min(),
                     clearable=False,
                     className="modern-dropdown compact-dropdown"
-                ),
-                xs=12, md=6
+                )],
+                xs=8, md=5
             ),
-            dbc.Col(
+            dbc.Col([
+                html.P("End", style={"marginBottom": "0px"}, className="hero-subtitle"),
                 dcc.Dropdown(
                     id=f"{id_prefix}-end-year",
                     options=sorted(all_player_df['year'].unique()),
                     value=end_default if end_default is not None else CURRENT_SEASON,
                     clearable=False,
                     className="modern-dropdown compact-dropdown"
-                ),
-                xs=12, md=6
+                )],
+                xs=8, md=5
             ),
-        ]
+        ], justify='center'
     )
 
 
@@ -1905,9 +1907,9 @@ def update_matchup_chart(data, tab, start_year, end_year):
 
         legend=dict(
             orientation="h",
-            x=0,
+            x=0.15,
             xanchor="left",
-            y=1.02
+            y=0.97
         ),
 
         barmode="group",
@@ -2094,7 +2096,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
         legend=dict(
             orientation="h",
             x=0.5,
-            y=-0.18,              # 👈 pushes legend below chart
+            y=-0.1,              # 👈 pushes legend below chart
             xanchor="center",
             yanchor="top",
             bgcolor="rgba(0,0,0,0)",
