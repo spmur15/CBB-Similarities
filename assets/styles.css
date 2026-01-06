@@ -211,9 +211,9 @@
    ============================ */
 .year-accordion .accordion-button.collapsed {
   background-color: #ffffff;          /* 👈 match hero dropdown bg */
-  color: #1f2937;
+  color: #9ca3af;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
   border-radius: 14px;
   padding: 12px 16px;
 
