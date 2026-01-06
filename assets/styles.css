@@ -189,4 +189,110 @@
     margin-bottom: 6px;
 }
 
+/* ============================
+   Year Accordion (Secondary Hero)
+   ============================ */
+
+.year-accordion {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Accordion item container */
+.year-accordion .accordion-item {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ============================
+   COLLAPSED (closed) state
+   ============================ */
+.year-accordion .accordion-button.collapsed {
+  background-color: #ffffff;          /* 👈 match hero dropdown bg */
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 14px;
+  padding: 12px 16px;
+
+  /* 👇 same shadow language as dropdowns */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================
+   EXPANDED (open) state
+   ============================ */
+.year-accordion .accordion-button:not(.collapsed) {
+  background-color: #e0ecff;          /* your light blue active state */
+  color: #0f3d7a;
+  box-shadow: none;
+}
+
+/* Remove default focus ring */
+.year-accordion .accordion-button:focus {
+  box-shadow: none;
+}
+
+/* Chevron */
+.year-accordion .accordion-button::after {
+  background-size: 14px;
+  opacity: 0.7;
+}
+
+/* Body */
+.year-accordion .accordion-body {
+  padding: 14px 16px 18px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Text inside */
+.year-accordion-text {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+/* ============================
+   Force visible outer shadow
+   ============================ */
+
+.year-accordion .accordion-item {
+  background: #ffffff;
+  border-radius: 18px;
+
+  /* 👇 THIS is the missing shadow */
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+
+  /* spacing + clipping */
+  overflow: visible;
+}
+
+/* Remove competing shadows so it looks clean */
+.year-accordion .accordion-button {
+  box-shadow: none !important;
+}
+
+/* Allow dropdowns to escape accordion */
+.year-accordion .accordion-item,
+.year-accordion .accordion-body {
+  overflow: visible !important;
+}
+
+/* Ensure dropdown menus appear above accordions/cards */
+.Select-menu-outer {
+  z-index: 9999 !important;
+}
+
+/* Prevent clipping anywhere in layout */
+.accordion,
+.accordion-collapse,
+.accordion-body {
+  overflow: visible;
+}
+
 
