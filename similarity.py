@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 from functools import lru_cache
 
+
+
+CURRENT_SEASON = 2026
+
 all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv')],axis=0)
 
 all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
@@ -19,6 +23,10 @@ pos_map = {'PG':'Guard',
            'C':'Big'}
 
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
+
+
+
+
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -260,6 +268,7 @@ def batch_player_team_compatibility(
     return pd.DataFrame(results)
 
 def enter_position(pos):
+    
     CURRENT_SEASON = 2026
     POS_CLASS = pos
 
@@ -351,11 +360,11 @@ def most_similar_teams_for_player(
 
 
 
-def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
+def enter_player(player_name, start_year=2022, end_year=2026, style_weight=0.7, top_n=60):
     # ---- pull player row first ----
     player_row_all = (
         all_player_df
-        .query("player_name == @player_name and year == @year")
+        .query("player_name == @player_name and year == @CURRENT_SEASON")
         .iloc[0]
     )
 
@@ -366,7 +375,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
     # ---- filter players for PCA training ----
     players_pos = (
         all_player_df
-        .query("year == @year")
+        .query("year == @CURRENT_SEASON")
         .query("posClass == @POS_CLASS")
         .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
@@ -395,8 +404,8 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
         vec = build_team_position_vector(
             df=all_player_df,
             team=team,
-            start_year=year-4,
-            end_year=year,
+            start_year=start_year,
+            end_year=end_year,
             pos_class=POS_CLASS
         )
         if vec is not None:
@@ -422,7 +431,7 @@ def enter_player(player_name, year=2026, style_weight=0.7, top_n=60):
 def enter_team(
     team_name,
     pos_class,
-    year=2026,
+    start_year=2022, end_year=2026,
     style_weight=0.7,
     top_n=60,
     min_poss=100
@@ -431,20 +440,20 @@ def enter_team(
     team_vec = build_team_position_vector(
         df=all_player_df,
         team=team_name,
-        start_year=year - 4,
-        end_year=year,
+        start_year=start_year,
+        end_year=end_year,
         pos_class=pos_class
     )
 
     if team_vec is None:
         raise ValueError(
-            f"No data available for {team_name}, posClass={pos_class}, years={year-3}-{year}"
+            f"No data available for {team_name}, posClass={pos_class}, years={start_year}-{end_year}"
         )
 
     # ---- build player pool ----
     players_pos = (
         all_player_df
-        .query("year == @year")
+        .query("year == @CURRENT_SEASON")
         .query("posClass == @pos_class")
         .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
@@ -504,7 +513,7 @@ def browse_compatibility(
 
     players = (
         all_player_df
-        .query("year == @year")
+        .query("year == @CURRENT_SEASON")
         .query("posClass == @pos_class")
         .query("off_poss >= @min_poss")
         .dropna(subset=STYLE_COLS + STAT_COLS)
@@ -539,11 +548,11 @@ def browse_compatibility(
 
 
 @lru_cache(maxsize=256)
-def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
+def get_matchup_detail(player, team, pos_class, start_year=2022, end_year=2026, style_weight=0.7):
     # get player row
     player_row = (
         all_player_df
-        .query("player_name == @player and year == @year")
+        .query("player_name == @player and year == @CURRENT_SEASON")
         .iloc[0]
     )
 
@@ -551,15 +560,15 @@ def get_matchup_detail(player, team, pos_class, year=2026, style_weight=0.7):
     team_vec = build_team_position_vector(
         df=all_player_df,
         team=team,
-        start_year=year - 4,
-        end_year=year,
+        start_year=start_year,
+        end_year=end_year,
         pos_class=pos_class
     )
 
     model = DualStylePCAModel(style_weight=style_weight)
     model.fit(
         all_player_df
-        .query("year == @year and posClass == @pos_class")
+        .query("year == @CURRENT_SEASON and posClass == @pos_class")
         .query("off_poss > 350")
         .dropna(subset=STYLE_COLS + STAT_COLS)
     )
