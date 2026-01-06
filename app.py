@@ -65,7 +65,7 @@ all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
-all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains('\?')]
+all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains(r'\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
 
 power_conf = all_player_df.loc[all_player_df['conf'].isin(['Big Ten', 'Big 12', 'Atlantic Coast', 'Southwest', 'Pac-12', 'Big East']), 'team'].unique()
@@ -315,6 +315,32 @@ def format_stat_label(col):
         .title()
     )
 
+def year_range_picker(id_prefix, start_default=2022, end_default=2026):
+    return dbc.Row(
+        className="g-2 justify-content-center",
+        children=[
+            dbc.Col(
+                dcc.Dropdown(
+                    id=f"{id_prefix}-start-year",
+                    options=sorted(all_player_df['year'].unique()),
+                    value=start_default if start_default is not None else all_player_df['year'].min(),
+                    clearable=False,
+                    className="modern-dropdown compact-dropdown"
+                ),
+                xs=12, md=6
+            ),
+            dbc.Col(
+                dcc.Dropdown(
+                    id=f"{id_prefix}-end-year",
+                    options=sorted(all_player_df['year'].unique()),
+                    value=end_default if end_default is not None else CURRENT_SEASON,
+                    clearable=False,
+                    className="modern-dropdown compact-dropdown"
+                ),
+                xs=12, md=6
+            ),
+        ]
+    )
 
 
 # -------------------------------------------------
@@ -430,7 +456,7 @@ def player_layout():
                         className="hero-subtitle"
                     ),
                     html.P(
-                        "Selected player is compared with players from power-conference teams with the same position from 2022-2026.",
+                        "Selected player is compared with players from power-conference teams with the same position.",
                         className="hero-subtitle"
                     ),
 
@@ -441,6 +467,31 @@ def player_layout():
                         clearable=False,
                         className="modern-dropdown"
                     ),
+                    html.Br(),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Accordion([
+                                            dbc.AccordionItem(
+                                            title="Enter Years",
+                                            children=[       
+                                                html.P("Select years to take team data from. "
+                                                    "Typically this should align with the current head coach's tenure for the team you're interested in.",
+                                                    className="hero-subtitle"),
+                                                year_range_picker('player')
+                                            ]
+                                        )],
+                                        className="year-accordion",
+                                        #style={'width': '40%'},
+                                        flush=True,
+                                        always_open=False,
+                                        start_collapsed=True,
+                                        style={"overflow": "visible"}
+                            ),
+                            xs=9, md=5, lg=4
+                        ),
+                         
+                         justify='center'
+                    )
                 ],
             ),
 
@@ -501,6 +552,30 @@ def team_layout():
                             ),
                         ]
                     ),
+                    html.Br(),                       
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Accordion([
+                                            dbc.AccordionItem(
+                                            title="Enter Years",
+                                            children=[       
+                                                html.P("Select years to take team data from. "
+                                                    "Typically this should align with the current head coach's tenure for the team you're interested in.",
+                                                    className="hero-subtitle"),
+                                                year_range_picker('team')
+                                            ]
+                                        )],
+                                        className="year-accordion",
+                                        #style={'width': '40%'},
+                                        flush=True,
+                                        always_open=False,
+                                        start_collapsed=True
+                            ),
+                            xs=9, md=5, lg=4
+                        ),
+                         
+                         justify='center'
+                    )
                 ],
             ),
 
@@ -560,6 +635,30 @@ def matchup_layout():
                             ),
                         ]
                     ),
+                    html.Br(),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Accordion([
+                                            dbc.AccordionItem(
+                                            title="Enter Years",
+                                            children=[       
+                                                html.P("Select years to take team data from. "
+                                                    "Typically this should align with the current head coach's tenure for the team you're interested in.",
+                                                    className="hero-subtitle"),
+                                                year_range_picker('matchup')
+                                            ]
+                                        )],
+                                        className="year-accordion",
+                                        #style={'width': '40%'},
+                                        flush=True,
+                                        always_open=False,
+                                        start_collapsed=True
+                            ),
+                            xs=9, md=5, lg=4
+                        ),
+                         
+                         justify='center'
+                    )
                 ],
             ),
 
@@ -759,7 +858,8 @@ def browse_layout():
                     html.H2("Similarity Browser", className="hero-title"),
 
                     html.P(
-                        "Explore the strongest player–team similarities across college basketball.",
+                        "Explore the strongest player–team similarities across college basketball. "
+                        "Includes players from the 25-26 season and team stats from the 22-26 seasons among players with the target position.",
                         className="hero-subtitle"
                     ),
 
@@ -969,13 +1069,15 @@ def go_to_matchup(_):
 
 @app.callback(
     Output("player-results", "children"),
-    Input("player-name", "value")
+    Input("player-name", "value"),
+    Input('player-start-year', 'value'),
+    Input('player-end-year', 'value')
 )
-def update_player_results(player_name):
+def update_player_results(player_name, start_year, end_year):
     if not player_name:
         return html.Div("This may take up to 1-2 minutes.")
 
-    df = enter_player(player_name)
+    df = enter_player(player_name, start_year=start_year, end_year=end_year)
 
     return dash_table.DataTable(
         id="player-teams-table",
@@ -1098,13 +1200,15 @@ def select_team_for_player(selected_rows, table_data, player_name):
 @app.callback(
     Output("team-results", "children"),
     Input("team-name", "value"),
-    Input("team-pos", "value")
+    Input("team-pos", "value"),
+    Input('team-start-year', 'value'),
+    Input('team-end-year', 'value')
 )
-def update_team_results(team_name, pos_class):
+def update_team_results(team_name, pos_class, start_year, end_year):
     if not team_name or not pos_class:
         return html.Div("This may take 30 seconds or more.")
 
-    df = enter_team(team_name, pos_class)
+    df = enter_team(team_name, pos_class, start_year=start_year, end_year=end_year)
     #print(df)
 
     return dash_table.DataTable(
@@ -1469,16 +1573,20 @@ def select_from_browse(selected_rows, table_data, pos_class):
 
 @app.callback(
     Output("matchup-summary", "children"),
-    Input("selected-matchup", "data")
+    Input("selected-matchup", "data"),
+    Input('matchup-start-year', 'value'),
+    Input('matchup-end-year', 'value')
 )
-def update_matchup_summary(data):
+def update_matchup_summary(data, start_year, end_year):
     if not data:
         return html.Div("Select a player–team pairing to view details.")
 
     detail = get_matchup_detail(
         player=data["player"],
         team=data["team"],
-        pos_class=data["posClass"]
+        pos_class=data["posClass"],
+        start_year=start_year,
+        end_year=end_year
     )
 
     s = detail["scores"]
@@ -1575,16 +1683,20 @@ def update_matchup_summary(data):
 @app.callback(
     Output("matchup-bar-chart", "figure"),
     Input("selected-matchup", "data"),
-    Input("matchup-tabs", "active_tab")
+    Input("matchup-tabs", "active_tab"),
+    Input('matchup-start-year', 'value'),
+    Input('matchup-end-year', 'value')
 )
-def update_matchup_chart(data, tab):
+def update_matchup_chart(data, tab, start_year, end_year):
     if not data:
         return go.Figure()
 
     detail = get_matchup_detail(
         player=data["player"],
         team=data["team"],
-        pos_class=data["posClass"]
+        pos_class=data["posClass"],
+        start_year=start_year,
+        end_year=end_year
     )
 
     player_row = detail["player_row"]
@@ -1614,7 +1726,7 @@ def update_matchup_chart(data, tab):
 
     subtitle_text = (
         f"Team styles & stats are taken among players<br>from the team with the target<br>"
-        f"position ({pos}) from 2022–2026."
+        f"position ({pos}) from {start_year}-{end_year}"
     )
 
     
