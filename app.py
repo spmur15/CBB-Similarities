@@ -399,23 +399,37 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
                 html.P("Start", style={"marginBottom": "0px"}, className="hero-subtitle"),
                 dcc.Dropdown(
                     id=f"{id_prefix}-start-year",
-                    options=sorted(all_player_df['year'].unique()),
+                    options=[
+                        {"label": "2020–21", "value": 2021},
+                        {"label": "2021–22", "value": 2022},
+                        {"label": "2022–23", "value": 2023},
+                        {"label": "2023–24", "value": 2024},
+                        {"label": "2024–25", "value": 2025},
+                        {"label": "2025–26", "value": 2026},
+                    ],
                     value=start_default if start_default is not None else all_player_df['year'].min(),
                     clearable=False,
                     className="modern-dropdown compact-dropdown"
                 )],
-                xs=8, md=5
+                xs=9, md=6
             ),
             dbc.Col([
                 html.P("End", style={"marginBottom": "0px"}, className="hero-subtitle"),
                 dcc.Dropdown(
                     id=f"{id_prefix}-end-year",
-                    options=sorted(all_player_df['year'].unique()),
+                    options=[
+                        {"label": "2020–21", "value": 2021},
+                        {"label": "2021–22", "value": 2022},
+                        {"label": "2022–23", "value": 2023},
+                        {"label": "2023–24", "value": 2024},
+                        {"label": "2024–25", "value": 2025},
+                        {"label": "2025–26", "value": 2026},
+                    ],
                     value=end_default if end_default is not None else CURRENT_SEASON,
                     clearable=False,
                     className="modern-dropdown compact-dropdown"
                 )],
-                xs=8, md=5
+                xs=6, md=6
             ),
         ], justify='center'
     )
