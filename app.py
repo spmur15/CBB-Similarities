@@ -705,9 +705,10 @@ def matchup_layout():
                                 dcc.Dropdown(
                                     id="matchup-player",
                                     options=player_2026_options,
-                                    placeholder="Player (2026)…",
+                                    placeholder="Player (2025-26)…",
                                     clearable=False,
                                     className="modern-dropdown",
+                                    value = all_player_df['player_name'].sample().iloc[0]
                                 ),
                                 xs=12, md=5, lg=4
                             ),
@@ -722,6 +723,7 @@ def matchup_layout():
                                     placeholder="Team…",
                                     clearable=False,
                                     className="modern-dropdown",
+                                    value = all_player_df['team'].sample().iloc[0]
                                 ),
                                 xs=12, md=5, lg=4
                             ),
