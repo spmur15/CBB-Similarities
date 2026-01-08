@@ -5,7 +5,7 @@ from dash import dash_table
 import dash
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
-
+import numpy as np
 
 
 from similarity import (
@@ -63,6 +63,8 @@ all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('a
 
 all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 
+#print(all_player_df['year'])
+
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains(r'\?')]
@@ -80,6 +82,16 @@ pos_map = {'PG':'Guard',
            'C':'Big'}
 
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
+
+
+#all_player_df['roster.height'].str.replace('0')
+
+all_player_df['roster.height'] = (
+    all_player_df['roster.height']
+    .astype(str)                      # avoid .str errors
+    .str.replace(r'0(?!$)', '', regex=True)
+)
+
 
 CURRENT_SEASON = 2026
 
@@ -429,7 +441,7 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
                     clearable=False,
                     className="modern-dropdown compact-dropdown"
                 )],
-                xs=6, md=6
+                xs=9, md=6
             ),
         ], justify='center'
     )
@@ -705,7 +717,7 @@ def matchup_layout():
                                 dcc.Dropdown(
                                     id="matchup-player",
                                     options=player_2026_options,
-                                    placeholder="Player (2025-26)…",
+                                    placeholder="Player (2026)…",
                                     clearable=False,
                                     className="modern-dropdown",
                                     value = all_player_df['player_name'].sample().iloc[0]
@@ -1299,19 +1311,22 @@ def select_team_for_player(selected_rows, table_data, player_name, start_year, e
     row = table_data[selected_rows[0]]
 
     # infer position from player
-    pos_class = (
+    extra_info = (
         all_player_df
         .query("player_name == @player_name")
         .sort_values("year", ascending=False)
-        .iloc[0]["posClass"]
+        [["posClass", 'roster.height', 'roster.year_class', 'roster.origin']]
     )
 
     return {
         "player": player_name,
         "team": row["team"],
-        "posClass": pos_class,
+        "posClass": extra_info['posClass'].iloc[0],
         "start_year": start_year,
-        "end_year": end_year
+        "end_year": end_year,
+        #'roster.height':extra_info['roster.height'].iloc[0],
+        #'roster.year_class':extra_info['roster.year_class'].iloc[0],
+        #'roster.origin':extra_info['roster.origin'].iloc[0]
     }
 
 
@@ -1441,7 +1456,10 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class, star
         "team": team_name,
         "posClass": pos_class,
         "start_year": start_year,
-        "end_year": end_year
+        "end_year": end_year,
+        #"roster.height": row['roster.height'],
+        #"roster.year_class": row['roster.year_class'],
+        #"roster.year_class": row['roster.year_class']
     }
 
 
@@ -1691,7 +1709,10 @@ def select_from_browse(selected_rows, table_data, pos_class):
     return {
         "player": row["player"],
         "team": row["target_team"],
-        "posClass": pos_class
+        "posClass": pos_class,
+        #"roster.height": row['roster.height'],
+        #"roster.year_class": row['roster.year_class'],
+        #"roster.year_class": row['roster.year_class']
     }
 
 
@@ -1718,6 +1739,9 @@ def update_matchup_summary(data, start_year, end_year):
     )
 
     s = detail["scores"]
+    roster = detail["roster"]
+
+
 
     label = fit_label(s["score"])
 
@@ -1731,8 +1755,13 @@ def update_matchup_summary(data, start_year, end_year):
                         className="mb-1",
                         style={"textAlign": "center"}
                     ),
+                    # html.Div(
+                    #     f'Position: {data["posClass"]}',
+                    #     className="text-muted",
+                    #     style={"textAlign": "center"}
+                    # ),
                     html.Div(
-                        f'Position: {data["posClass"]}',
+                        f'{data["posClass"]} | {roster["height"]} | {roster["year_class"]} | {roster["origin"]}',
                         className="text-muted",
                         style={"textAlign": "center"}
                     ),
@@ -2176,20 +2205,21 @@ def update_matchup_from_dropdowns(player, team, existing):
     if not player or not team:
         raise PreventUpdate
 
-    pos_class = (
+    extra_info = (
         all_player_df
         .query("player_name == @player")
         .sort_values("year", ascending=False)
-        .iloc[0]["posClass"]
+        [["posClass", 'roster.height', 'roster.year_class', 'roster.origin']]
     )
 
     return {
         "player": player,
         "team": team,
-        "posClass": pos_class,
+        "posClass": extra_info['posClass'].iloc[0],
         "start_year": existing.get("start_year", 2022),
         "end_year": existing.get("end_year", CURRENT_SEASON)
     }
+
 
 
 
