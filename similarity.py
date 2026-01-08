@@ -25,7 +25,11 @@ pos_map = {'PG':'Guard',
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
 
 
-
+all_player_df['roster.height'] = (
+    all_player_df['roster.height']
+    .astype(str)                      # avoid .str errors
+    .str.replace(r'0(?!$)', '', regex=True)
+)
 
 
 from sklearn.preprocessing import StandardScaler
@@ -342,7 +346,10 @@ def most_similar_teams_for_player(
             "team": team,
             "score": res["score"],
             "style_sim": res["style_sim"],
-            "stat_sim": res["stat_sim"]
+            "stat_sim": res["stat_sim"],
+            # "roster.height": player_row["roster.height"],
+            # "roster.year_class": player_row["roster.year_class"],
+            # "roster.origin": player_row["roster.origin"],
         })
     
     return (
@@ -549,14 +556,19 @@ def browse_compatibility(
 
 @lru_cache(maxsize=256)
 def get_matchup_detail(player, team, pos_class, start_year=2022, end_year=2026, style_weight=0.7):
-    # get player row
+
     player_row = (
         all_player_df
         .query("player_name == @player and year == @CURRENT_SEASON")
         .iloc[0]
     )
 
-    # build team vector
+    roster_info = {
+        "height": player_row.get("roster.height"),
+        "year_class": player_row.get("roster.year_class"),
+        "origin": player_row.get("roster.origin"),
+    }
+
     team_vec = build_team_position_vector(
         df=all_player_df,
         team=team,
@@ -578,5 +590,6 @@ def get_matchup_detail(player, team, pos_class, start_year=2022, end_year=2026, 
     return {
         "player_row": player_row,
         "team_vec": team_vec,
-        "scores": sims
+        "scores": sims,
+        "roster": roster_info
     }
