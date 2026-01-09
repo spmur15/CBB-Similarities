@@ -59,13 +59,16 @@ POSITION_OPTIONS = [
 # -------------------------------------------------
 # LOAD DATA (placeholder – adjust as needed)
 # -------------------------------------------------
-all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv')],axis=0)
+all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('all_player_stats_2.csv'), pd.read_csv('all_player_stats_3.csv')],axis=0)
 
 all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 
 #print(all_player_df['year'])
 
-all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
+all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str))
+
+all_player_df['year'] = all_player_df['year'].str.replace('209', '2019').astype(int)
+print(all_player_df['year'].value_counts())
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains(r'\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
@@ -81,9 +84,12 @@ pos_map = {'PG':'Guard',
            'PF/C':'Big',
            'C':'Big'}
 
+all_player_df['posClass_orig'] = all_player_df['posClass'].copy()
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
 
 all_player_df['net_rtg'] = all_player_df['off_rtg'] - all_player_df['def_rtg']
+
+all_player_df['def_fc'] = all_player_df['def_fc'] * 2
 
 
 #all_player_df['roster.height'].str.replace('0')
@@ -246,7 +252,7 @@ STAT_DISPLAY = {
         "format": "{:.1%}",
     },
     "def_fc": {
-        "label": "Fouls/40",
+        "label": "Fouls/100",
         "format": "{:.2f}",
     },
 
@@ -585,6 +591,8 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
                 dcc.Dropdown(
                     id=f"{id_prefix}-start-year",
                     options=[
+                        {"label": "2018-19", "value": 2019},
+                        {"label": "2019-20", "value": 2020},
                         {"label": "2020–21", "value": 2021},
                         {"label": "2021–22", "value": 2022},
                         {"label": "2022–23", "value": 2023},
@@ -603,6 +611,8 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
                 dcc.Dropdown(
                     id=f"{id_prefix}-end-year",
                     options=[
+                        {"label": "2018-19", "value": 2019},
+                        {"label": "2019-20", "value": 2020},
                         {"label": "2020–21", "value": 2021},
                         {"label": "2021–22", "value": 2022},
                         {"label": "2022–23", "value": 2023},
@@ -1212,7 +1222,7 @@ def matchup_layout():
                     dbc.Accordion(
                         [
                             dbc.AccordionItem(
-                                title="All Player Stats (25-26)",
+                                title="Player Stat Summary (25-26)",
                                 children=[
                                     html.P(
                                         [
@@ -1622,7 +1632,7 @@ app.layout = html.Div(
         dcc.Store(id="selected-matchup", storage_type="session"),
         html.Div(id="navbar"),
         html.Div(id="page-content", style={"padding": "24px"}),
-        html.Hr()
+        html.Br()
     ]
 )
 
@@ -2227,7 +2237,7 @@ def update_matchup_summary(data, start_year, end_year):
             html.Div(
                 [
                     html.H4(
-                        f'{data["player"]} ↔ {data["team"]}',
+                        f'{data["player"]} ({data["posClass"]}) ↔ {data["team"]}',
                         className="mb-1",
                         style={"textAlign": "center"}
                     ),
@@ -2237,17 +2247,17 @@ def update_matchup_summary(data, start_year, end_year):
                     #     style={"textAlign": "center"}
                     # ),
                     html.Div(
-                        f'{data["posClass"]} | {roster["height"]} | {roster["year_class"]} | {roster["origin"]}',
+                        f'{roster["team_og"]} | {roster["pos_og"]} | {roster["height"]} | {roster["year_class"]} | {roster["origin"]}',
                         className="text-muted",
                         style={"textAlign": "center"}
                     ),
                     html.Div(
-                        "Comparison is against players at the same position within the team’s system.",
+                        f"Comparison is against players at the same position within the team’s system ({data["posClass"]}).",
                         className="text-muted",
                         style={
                             "textAlign": "center",
-                            "fontSize": "13px",
-                            "marginTop": "4px",
+                            "fontSize": "14px",
+                            "marginTop": "6px",
                             "marginBottom": "0px"
                         }
                     ),
@@ -2508,7 +2518,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
         fig.update_yaxes(
             tickfont=dict(
                 family="Inter, sans-serif",
-                size=12,
+                size=13,
                 color="#777"
             ),
             ticklabelposition="outside",
@@ -2544,7 +2554,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
 
             annotations.append(
                 dict(
-                    x=-0.12,                # push left of axis
+                    x=-0.15,                # push left of axis
                     y=y_center+0.56,
                     xref="paper",
                     yref="y",
@@ -2552,7 +2562,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
                     showarrow=False,
                     textangle=-90,
                     font=dict(
-                        size=12,
+                        size=13,
                         color="#888",
                         family="Inter, sans-serif"
                     ),
@@ -2795,3 +2805,6 @@ def sync_matchup_years(data):
 
 if __name__ == "__main__":
     app.run_server(debug=True)
+
+
+
