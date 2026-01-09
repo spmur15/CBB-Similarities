@@ -13,6 +13,8 @@ all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 
+all_player_df['net_rtg'] = all_player_df['off_rtg'] - all_player_df['def_rtg']
+
 pos_map = {'PG':'Guard',
            's-PG':'Guard',
            'CG':'Guard',
@@ -30,6 +32,15 @@ all_player_df['roster.height'] = (
     .astype(str)                      # avoid .str errors
     .str.replace(r'0(?!$)', '', regex=True)
 )
+
+all_player_df['pctile_def_stl'] = all_player_df['def_stl'].rank(pct=True)
+all_player_df['pctile_def_blk'] = all_player_df['def_blk'].rank(pct=True)
+all_player_df['pctile_def_fc'] = all_player_df['def_fc'].rank(pct=True, ascending=False)
+all_player_df['pctile_def_orb'] = all_player_df['def_orb'].rank(pct=True)
+
+all_player_df['pctile_adj_rapm_margin'] = (all_player_df['pctile_off_adj_rapm'] + all_player_df['pctile_def_adj_rapm']) / 2#all_player_df['adj_rapm_margin'].rank(pct=True)
+all_player_df['pctile_net_rtg'] = (all_player_df['pctile_off_rtg'] + all_player_df['pctile_def_rtg']) / 2# all_player_df['net_rtg'].rank(pct=True)
+all_player_df['pctile_off_ft'] = all_player_df['off_ft'].rank(pct=True)
 
 
 from sklearn.preprocessing import StandardScaler
