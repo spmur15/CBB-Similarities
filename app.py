@@ -83,6 +83,8 @@ pos_map = {'PG':'Guard',
 
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
 
+all_player_df['net_rtg'] = all_player_df['off_rtg'] - all_player_df['def_rtg']
+
 
 #all_player_df['roster.height'].str.replace('0')
 
@@ -117,6 +119,175 @@ STAT_LABEL_MAP = {
     "def_blk": "BLK%",
     "def_stl": "STL%",
     "off_usage": "Usage%",
+}
+
+all_player_df['pctile_def_stl'] = all_player_df['def_stl'].rank(pct=True)
+all_player_df['pctile_def_blk'] = all_player_df['def_blk'].rank(pct=True)
+all_player_df['pctile_def_fc'] = all_player_df['def_fc'].rank(pct=True, ascending=False)
+all_player_df['pctile_def_orb'] = all_player_df['def_orb'].rank(pct=True)
+
+all_player_df['pctile_adj_rapm_margin'] = (all_player_df['pctile_off_adj_rapm'] + all_player_df['pctile_def_adj_rapm']) / 2#all_player_df['adj_rapm_margin'].rank(pct=True)
+all_player_df['pctile_net_rtg'] = (all_player_df['pctile_off_rtg'] + all_player_df['pctile_def_rtg']) / 2# all_player_df['net_rtg'].rank(pct=True)
+all_player_df['pctile_off_ft'] = all_player_df['off_ft'].rank(pct=True)
+
+
+STAT_SECTIONS = {
+    # ---------------- Efficiency ----------------
+    "RAPM (Regularized Adj. +/-)": [
+        "adj_rapm_margin",
+        "off_adj_rapm",
+        "def_adj_rapm",
+    ],
+
+    "Off / Def Rating (Individual Pts Produced Per 100 Poss)": [
+        "net_rtg",
+        "off_rtg",
+        "def_rtg",
+    ],
+
+    # ---------------- Four Factors ----------------
+    "Four Factors & Playmaking": [
+        "off_efg",
+        "off_to",
+        "off_orb",
+        "off_ftr",
+        "off_assist",
+    ],
+
+    # ---------------- Defense ----------------
+    "Defense": [
+        "def_orb",
+        "def_stl",
+        "def_blk",
+        "def_fc",
+    ],
+
+    # ---------------- Shooting ----------------
+    "Shooting": [
+        "off_threep",
+        "off_twopmid",
+        "off_twoprim",
+        "off_ft",
+    ],
+
+    # ---------------- Shot Diet ----------------
+    "Shot Diet": [
+        "off_threepr",
+        "off_twopmidr",
+        "off_twoprimr",
+        "off_ftr",
+    ],
+}
+
+
+
+STAT_DISPLAY = {
+    # ----- RAPM -----
+    "adj_rapm_margin": {
+        "label": "RAPM",
+        "format": "{:.2f}",
+    },
+    "off_adj_rapm": {
+        "label": "Off. RAPM",
+        "format": "{:.2f}",
+    },
+    "def_adj_rapm": {
+        "label": "Def. RAPM",
+        "format": "{:.2f}",
+    },
+
+    # ----- Ratings -----
+    "net_rtg": {
+        "label": "Net Rtg",
+        "format": "{:.1f}",
+    },
+    "off_rtg": {
+        "label": "Off. Rtg",
+        "format": "{:.1f}",
+    },
+    "def_rtg": {
+        "label": "Def. Rtg",
+        "format": "{:.1f}",
+    },
+
+    # ----- Four Factors -----
+    "off_efg": {
+        "label": "eFG%",
+        "format": "{:.1%}",
+    },
+    "off_to": {
+        "label": "TOV%",
+        "format": "{:.1%}",
+    },
+    "off_orb": {
+        "label": "ORB%",
+        "format": "{:.1%}",
+    },
+    "off_ftr": {
+        "label": "FTR",
+        "format": "{:.1%}",
+    },
+    "off_assist": {
+        "label": "AST%",
+        "format": "{:.1%}",
+    },
+
+    # ----- Defense -----
+    "def_orb": {
+        "label": "DRB%",
+        "format": "{:.1%}",
+    },
+    "def_stl": {
+        "label": "STL%",
+        "format": "{:.1%}",
+    },
+    "def_blk": {
+        "label": "BLK%",
+        "format": "{:.1%}",
+    },
+    "def_fc": {
+        "label": "Fouls/40",
+        "format": "{:.2f}",
+    },
+
+    # ----- Shooting -----
+    "off_threep": {
+        "label": "3P%",
+        "format": "{:.1%}",
+    },
+    "off_twopmid": {
+        "label": "Mid FG%",
+        "format": "{:.1%}",
+    },
+    "off_twoprim": {
+        "label": "Rim FG%",
+        "format": "{:.1%}",
+    },
+    "off_ft": {
+        "label": "FT%",
+        "format": "{:.1%}",
+    },
+
+    # ----- Shot Diet -----
+    "off_threepr": {
+        "label": "3PA Rate",
+        "format": "{:.1%}",
+    },
+    "off_twopmidr": {
+        "label": "Mid rate",
+        "format": "{:.1%}",
+    },
+    "off_twoprimr": {
+        "label": "Rim rate",
+        "format": "{:.1%}",
+    },
+    "off_ftr": {
+        "label": "FT Rate",
+        "format": "{:.1%}",
+    },
+
+
+
 }
 
 
@@ -315,14 +486,16 @@ server = app.server
 # -------------------------------------------------
 def fit_label(score):
     if score >= 0.90:
-        return "Very strong"
+        return "Extremely strong"
     elif score >= 0.75:
+        return "Very Strong"
+    elif score >= 0.65:
         return "Strong"
-    elif score >= 0.60:
-        return "Somewhat strong"
-    elif score >= 0.45:
+    elif score >= 0.5:
+        return "Somewhat Strong"
+    elif score >= 0.35:
         return "Decent"
-    elif score >= 0.3:
+    elif score >= 0.0:
         return "Somewhat poor"
     else:
         return "Poor"
@@ -359,7 +532,7 @@ def similarity_gauge(value, title, height=180, font_size=28):
         )
     ).update_layout(
         height=height,
-        margin=dict(t=40, b=10, l=10, r=10)
+        margin=dict(t=50, b=10, l=10, r=10)
     )
 
 def pretty_label(col):
@@ -445,6 +618,236 @@ def year_range_picker(id_prefix, start_default=2022, end_default=2026):
             ),
         ], justify='center'
     )
+
+
+def stat_tile(label, value, pct_raw):
+    return html.Div(
+        className="stat-tile",
+        children=[
+            html.Div(
+                label,
+                style={
+                    "fontSize": "13px",
+                    "letterSpacing": "0.04em",
+                    "textTransform": "uppercase",
+                    "color": "#6b7280",
+                    "marginBottom": "3px",
+                },
+            ),
+
+            html.Div(
+                value,
+                style={
+                    "fontSize": "20px",
+                    "fontWeight": "600",
+                    "color": "#111827",
+                },
+            ),
+
+            percentile_bar(pct_raw),
+
+            html.Div(
+                format_percentile(pct_raw),
+                style={
+                    "fontSize": "12px",
+                    "color": "#6b7280",
+                    "marginTop": "4px",
+                },
+            ),
+        ],
+        style={
+            "background": "white",
+            "borderRadius": "14px",
+            "padding": "4px 3px",
+            "boxShadow": "0 4px 12px rgba(0,0,0,0.12)",
+            "textAlign": "center",
+            "marginTop":"5px",
+            "marginBottom":"5px"
+            #"display": "flex",
+            #"flexDirection": "column",
+            #"alignItems": "center",   # 👈 ensures perfect centering
+        }
+    )
+
+
+
+
+
+def format_stat_value(col, value):
+    if value is None or pd.isna(value):
+        return "—"
+
+    cfg = STAT_DISPLAY.get(col)
+
+    if cfg and "format" in cfg:
+        try:
+            return cfg["format"].format(value)
+        except Exception:
+            return str(value)
+
+    # fallback
+    return f"{value:.2f}"
+
+
+
+def format_percentile(p):
+    if p is None or pd.isna(p):
+        return "—"
+
+    # p is 0–1
+    pct = int(round(p * 100))
+
+    suffix = "th"
+    if pct % 10 == 1 and pct != 11:
+        suffix = "st"
+    elif pct % 10 == 2 and pct != 12:
+        suffix = "nd"
+    elif pct % 10 == 3 and pct != 13:
+        suffix = "rd"
+
+    return f"{pct}{suffix} %ile"
+
+
+
+
+# def stat_grid(tiles, cols=4):
+#     return dbc.Row(
+#         [
+#             dbc.Col(tile, xs=6, md=12 // cols)
+#             for tile in tiles
+#         ],
+#         className="g-3",
+#     )
+
+
+def stat_grid(tiles, cols=5):
+    return dbc.Row(
+        [
+            dbc.Col(
+                tile,
+                xs=6,
+                md=12 // cols,
+                #className="d-flex justify-content-center"  # 👈 key
+            )
+            for tile in tiles
+        ],
+        #className="g-3 justify-content-center",  # 👈 key
+        justify='center'
+    )
+
+
+def stat_section(title, tiles):
+    return html.Div(
+        [
+            html.H6(
+                title,
+                className="mt-3 mb-2",
+                style={
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.06em",
+                    "fontSize": "13px",
+                    "color": "#6b7280",
+                    'textAlign': 'center'
+                },
+            ),
+            stat_grid(tiles),
+            html.Br()
+        ]
+    )
+
+
+
+
+def build_matchup_stat_grid(player_row):
+    sections = []
+
+    for section_name, cols in STAT_SECTIONS.items():
+        tiles = []
+
+        for col in cols:
+            value = player_row.get(col)
+            pct_col = get_pctile_col(col)
+            pct = player_row.get(pct_col)
+
+
+            tiles.append(
+                stat_tile(
+                    label=STAT_DISPLAY.get(col, {}).get("label", format_stat_label(col)),
+                    value=format_stat_value(col, value),
+                    pct_raw=pct,
+                )
+            )
+
+        sections.append(stat_section(section_name, tiles))
+
+    return html.Div(sections)
+
+
+def percentile_bar(p):
+    """
+    p: percentile in 0–1 range
+    """
+    if p is None or pd.isna(p):
+        return html.Div(
+            style={
+                "height": "6px",
+                "backgroundColor": "#e5e7eb",
+                "borderRadius": "4px",
+                "marginTop": "6px",
+            }
+        )
+
+    pct = max(0, min(1, float(p))) * 100
+
+    return html.Div(
+        # ⬇️ OUTER CONTAINER (controls whitespace)
+        style={
+            "marginTop": "8px",
+            "display": "flex",
+            "justifyContent": "center",
+        },
+        children=html.Div(
+            # ⬇️ BAR TRACK (narrower than tile)
+            style={
+                "width": "72%",          # 👈 key change
+                "height": "6px",
+                "backgroundColor": "#e5e7eb",
+                "borderRadius": "4px",
+                "overflow": "hidden",
+            },
+            children=html.Div(
+                # ⬇️ FILLED BAR
+                style={
+                    "width": f"{pct:.0f}%",
+                    "height": "100%",
+                    "backgroundColor": "#6366f1",
+                    "borderRadius": "4px",
+                    "transition": "width 0.4s ease",
+                }
+            ),
+        ),
+    )
+
+
+
+def get_pctile_col(col):
+    """
+    Maps stat column → percentile column.
+    Handles numeric substitutions (e.g. threep → 3p).
+    """
+    special_map = {
+        "off_threep": "pctile_off_3p",
+        "off_twopmid": "pctile_off_2pmid",
+        "off_twoprim": "pctile_off_2prim",
+
+        "off_threepr": "pctile_off_3pr",
+        "off_twopmidr": "pctile_off_2pmidr",
+        "off_twoprimr": "pctile_off_2primr",
+    }
+
+    return special_map.get(col, f"pctile_{col}")
+
+
 
 
 # -------------------------------------------------
@@ -584,7 +987,7 @@ def player_layout():
                                                 year_range_picker('player')
                                             ]
                                         )],
-                                        className="year-accordion",
+                                        className="styled-accordion year-accordion",
                                         #style={'width': '40%'},
                                         flush=True,
                                         always_open=False,
@@ -669,7 +1072,7 @@ def team_layout():
                                                 year_range_picker('team')
                                             ]
                                         )],
-                                        className="year-accordion",
+                                        className="styled-accordion year-accordion",
                                         #style={'width': '40%'},
                                         flush=True,
                                         always_open=False,
@@ -754,7 +1157,7 @@ def matchup_layout():
                                                 year_range_picker('matchup')
                                             ]
                                         )],
-                                        className="year-accordion",
+                                        className="styled-accordion year-accordion",
                                         #style={'width': '40%'},
                                         flush=True,
                                         always_open=False,
@@ -771,7 +1174,6 @@ def matchup_layout():
             html.Hr(className="mt-3 mb-4", style={"opacity": 0.15}),
 
             html.Div(id="matchup-summary", className="mb-3"),
-
     ]),
 
     html.Div([
@@ -804,7 +1206,82 @@ def matchup_layout():
                     xl=6    # wide screens
                 ),
                 justify="center"
-            )
+            ),
+            dbc.Row(
+                dbc.Col(
+                    dbc.Accordion(
+                        [
+                            dbc.AccordionItem(
+                                title="All Player Stats (25-26)",
+                                children=[
+                                    html.P(
+                                        [
+                                            "Statistical Profile via ",
+                                            html.A(
+                                                "hoop-explorer.com",
+                                                href="https://hoop-explorer.com",
+                                                target="_blank",
+                                                className="external-link",
+                                            ),
+                                        ],
+                                        className="hero-subtitle",
+                                        style={"textAlign": "center"},
+                                    ),
+
+                                    html.Div(
+                                        id="matchup-stat-grid",
+                                        children=html.Div(
+                                            "Select a matchup to view detailed stats.",
+                                            className="text-muted",
+                                            style={"textAlign": "center", "padding": "16px"},
+                                        ),
+                                    ),
+
+                                    html.P(
+                                        [
+                                            "Stats explained:",
+                                            html.A(
+                                                "hoop-explorer.blogspot.com",
+                                                href="https://hoop-explorer.blogspot.com/2022/03/using-linq-to-build-advanced-filters-on.html",
+                                                target="_blank",
+                                                className="external-link",
+                                            ),
+                                        ],
+                                        className="hero-subtitle",
+                                        style={"textAlign": "center"},
+                                    ),
+
+                                    html.P(
+                                        [
+                                            "Basketball reference glossary:",
+                                            html.A(
+                                                "basketball-reference.com/glossary",
+                                                href="https://www.basketball-reference.com/about/glossary.html",
+                                                target="_blank",
+                                                className="external-link",
+                                            ),
+                                        ],
+                                        className="hero-subtitle",
+                                        style={"textAlign": "center"},
+                                    ),
+                                    
+                                ],
+                            )
+                        ],
+                        className="styled-accordion profile-accordion",   # 👈 reuse exact styling
+                        flush=True,
+                        always_open=False,
+                        start_collapsed=True,
+                        style={"overflow": "visible"},
+                    ),
+                    xs=12,   # mobile
+                    md=12,   # tablet
+                    lg=10,    # desktop
+                    xl=6    # wide screens
+                ),
+                justify="center",
+                className="mb-3",
+            ),
 
         ]
     )
@@ -1145,6 +1622,7 @@ app.layout = html.Div(
         dcc.Store(id="selected-matchup", storage_type="session"),
         html.Div(id="navbar"),
         html.Div(id="page-content", style={"padding": "24px"}),
+        html.Hr()
     ]
 )
 
@@ -1741,8 +2219,6 @@ def update_matchup_summary(data, start_year, end_year):
     s = detail["scores"]
     roster = detail["roster"]
 
-
-
     label = fit_label(s["score"])
 
     return dbc.Card(
@@ -1791,11 +2267,11 @@ def update_matchup_summary(data, start_year, end_year):
                 figure=similarity_gauge(
                     s["score"],
                     f"Overall Similarity - {label}",
-                    height=160,
-                    font_size=30
+                    height=145,
+                    font_size=28
                 ),
                 config={"displayModeBar": False},
-                style={"marginTop": "40px"}
+                style={"marginTop": "20px"}
             ),
             html.Br(),
 
@@ -1819,7 +2295,7 @@ def update_matchup_summary(data, start_year, end_year):
                             figure=similarity_gauge(
                                 s["stat_sim"],
                                 "Stat Sim.",
-                                height=140,
+                                height=135,
                                 font_size=24
                             ),
                             config={"displayModeBar": False}
@@ -2219,6 +2695,35 @@ def update_matchup_from_dropdowns(player, team, existing):
         "start_year": existing.get("start_year", 2022),
         "end_year": existing.get("end_year", CURRENT_SEASON)
     }
+
+
+
+@app.callback(
+    Output("matchup-stat-grid", "children"),
+    Input("selected-matchup", "data"),
+    Input("matchup-start-year", "value"),
+    Input("matchup-end-year", "value"),
+)
+def update_matchup_stat_grid(data, start_year, end_year):
+    if not data:
+        return html.Div(
+            "Select a player–team pairing to view detailed stats.",
+            className="text-muted",
+            style={"textAlign": "center", "padding": "16px"},
+        )
+
+    detail = get_matchup_detail(
+        player=data["player"],
+        team=data["team"],
+        pos_class=data["posClass"],
+        start_year=start_year,
+        end_year=end_year,
+    )
+
+    player_row = detail["player_row"]
+
+    return build_matchup_stat_grid(player_row)
+
 
 
 
