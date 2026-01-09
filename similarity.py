@@ -10,7 +10,8 @@ all_player_df = pd.concat([pd.read_csv('all_player_stats_1.csv'), pd.read_csv('a
 
 all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 
-all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str)).astype(int)
+all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str))
+all_player_df['year'] = all_player_df['year'].str.replace('209', '2019').astype(int)
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 
 all_player_df['net_rtg'] = all_player_df['off_rtg'] - all_player_df['def_rtg']
@@ -24,8 +25,10 @@ pos_map = {'PG':'Guard',
            'PF/C':'Big',
            'C':'Big'}
 
+all_player_df['posClass_orig'] = all_player_df['posClass'].copy()
 all_player_df['posClass'] = all_player_df['posClass'].map(pos_map)
 
+all_player_df['def_fc'] = all_player_df['def_fc'] * 2
 
 all_player_df['roster.height'] = (
     all_player_df['roster.height']
@@ -578,6 +581,8 @@ def get_matchup_detail(player, team, pos_class, start_year=2022, end_year=2026, 
         "height": player_row.get("roster.height"),
         "year_class": player_row.get("roster.year_class"),
         "origin": player_row.get("roster.origin"),
+        "pos_og": player_row.get("posClass_orig"),
+        "team_og": player_row.get("team"),
     }
 
     team_vec = build_team_position_vector(
