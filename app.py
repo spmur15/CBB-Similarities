@@ -68,7 +68,7 @@ all_player_df = all_player_df.loc[all_player_df['off_poss']>350]
 all_player_df['year'] = ('20' + all_player_df['year'].str[5:].astype(str))
 
 all_player_df['year'] = all_player_df['year'].str.replace('209', '2019').astype(int)
-print(all_player_df['year'].value_counts())
+#print(all_player_df['year'].value_counts())
 all_player_df['conf'] = all_player_df['conf'].str.replace(" Conference", "").str.strip()
 all_player_df = all_player_df.loc[~all_player_df['posClass'].str.contains(r'\?')]
 names = all_player_df['player_name'].str.split(', ', expand=True)
@@ -888,7 +888,38 @@ def navbar():
     return dbc.Navbar(
         dbc.Container(
             [
-                dbc.NavbarBrand("CBB Similarity", className="fw-bold"),
+                dbc.NavbarBrand(
+                    html.Div(
+                        [
+                            html.Span(
+                                "CBB Similarity",
+                                style={
+                                    "fontWeight": 600,
+                                    "fontSize": "24px",
+                                    "lineHeight": "1",
+                                },
+                            ),
+                            html.Span(
+                                "BETA",
+                                style={
+                                    "backgroundColor": "#a32fba",
+                                    "color": "white",
+                                    "fontSize": "10px",
+                                    "fontWeight": 700,
+                                    "padding": "3px 7px",
+                                    "borderRadius": "999px",
+                                    "letterSpacing": "0.06em",
+                                    "lineHeight": "1",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "alignItems": "center",
+                            "gap": "8px",
+                        },
+                    )
+                ),
 
                 dbc.Nav(
                     [
@@ -938,7 +969,35 @@ def navbar():
 # -------------------------------------------------
 def position_layout():
     return html.Div([
-        html.H4("Position Explorer"),
+        html.Div(
+            [
+                html.H4(
+                    "Player ↔ Team",
+                    className="hero-title",
+                    style={"margin": 0}  # 👈 remove default H4 margin
+                ),
+                html.Span(
+                    "BETA",
+                    style={
+                        "backgroundColor": "#a32fba",
+                        "color": "white",
+                        "fontSize": "11px",
+                        "fontWeight": 700,
+                        "padding": "3px 8px",
+                        "borderRadius": "999px",
+                        "marginLeft": "8px",
+                        "letterSpacing": "0.06em",
+                        "lineHeight": "1",          # 👈 helps vertical centering
+                    }
+                ),
+            ],
+            style={
+                "display": "flex",
+                "alignItems": "center",  # 👈 vertical alignment
+                "justifyContent": "center",  # 👈 optional (centered header)
+                "gap": "6px",
+            }
+        ),
         html.Hr(style={"opacity": 0.3}),
         dbc.Row([
                 dbc.Col(
@@ -967,7 +1026,36 @@ def player_layout():
             html.Div(
                 className="hero-box",
                 children=[
-                    html.H2("Find Player–Team Fits", className="hero-title"),
+                    #html.H2("Find Player–Team Fits", className="hero-title"),
+                    html.Div(
+                        [
+                            html.H4(
+                                "Enter Players",
+                                className="hero-title",
+                                style={"margin": 0}  # 👈 remove default H4 margin
+                            ),
+                            html.Span(
+                                "BETA",
+                                style={
+                                    "backgroundColor": "#a32fba",
+                                    "color": "white",
+                                    "fontSize": "11px",
+                                    "fontWeight": 700,
+                                    "padding": "3px 8px",
+                                    "borderRadius": "999px",
+                                    "marginLeft": "8px",
+                                    "letterSpacing": "0.06em",
+                                    "lineHeight": "1",          # 👈 helps vertical centering
+                                }
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "alignItems": "center",  # 👈 vertical alignment
+                            "justifyContent": "center",  # 👈 optional (centered header)
+                            "gap": "6px",
+                        }
+                    ),
                     html.P(
                         "Select a player to see compatible teams.",
                         className="hero-subtitle"
@@ -1032,7 +1120,36 @@ def team_layout():
             html.Div(
                 className="hero-box",
                 children=[
-                    html.H2("Find Team–Player Fits", className="hero-title"),
+                    #html.H2("Find Team–Player Fits", className="hero-title"),
+                    html.Div(
+                        [
+                            html.H4(
+                                "Enter Players",
+                                className="hero-title",
+                                style={"margin": 0}  # 👈 remove default H4 margin
+                            ),
+                            html.Span(
+                                "BETA",
+                                style={
+                                    "backgroundColor": "#a32fba",
+                                    "color": "white",
+                                    "fontSize": "11px",
+                                    "fontWeight": 700,
+                                    "padding": "3px 8px",
+                                    "borderRadius": "999px",
+                                    "marginLeft": "8px",
+                                    "letterSpacing": "0.06em",
+                                    "lineHeight": "1",          # 👈 helps vertical centering
+                                }
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "alignItems": "center",  # 👈 vertical alignment
+                            "justifyContent": "center",  # 👈 optional (centered header)
+                            "gap": "6px",
+                        }
+                    ),
                     html.P(
                         "Select a team and position to see compatible players.",
                         className="hero-subtitle"
@@ -1116,7 +1233,50 @@ def matchup_layout():
             html.Div(
                 className="hero-box",
                 children=[
-                    html.H4("Player ↔ Team", className="hero-title"),
+                    html.Div(
+                        [
+                            html.H4(
+                                "Player ↔ Team",
+                                className="hero-title",
+                                style={"margin": 0}  # 👈 remove default H4 margin
+                            ),
+                            html.Span(
+                                "BETA",
+                                style={
+                                    "backgroundColor": "#a32fba",
+                                    "color": "white",
+                                    "fontSize": "11px",
+                                    "fontWeight": 700,
+                                    "padding": "3px 8px",
+                                    "borderRadius": "999px",
+                                    "marginLeft": "8px",
+                                    "letterSpacing": "0.06em",
+                                    "lineHeight": "1",          # 👈 helps vertical centering
+                                }
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "alignItems": "center",  # 👈 vertical alignment
+                            "justifyContent": "center",  # 👈 optional (centered header)
+                            "gap": "6px",
+                        }
+                    ),
+                    # html.Span(
+                    #     "BETA",
+                    #     style={
+                    #         "backgroundColor": "#a32fba",
+                    #         "color":'white',
+                    #         "fontSize": "11px",
+                    #         "fontWeight": 700,
+                    #         "padding": "3px 8px",
+                    #         "borderRadius": "999px",
+                    #         "marginLeft": "8px",
+                    #         "verticalAlign": "middle",
+                    #         "letterSpacing": "0.06em",
+                    #     }
+                    # ),
+                    # html.H4("Player ↔ Team", className="hero-title"),
                     html.P(
                         "Select a player and team to see similarity details. "
                         "This may take up to 30 seconds.",
@@ -1473,7 +1633,35 @@ def browse_layout():
             html.Div(
                 className="hero-box",
                 children=[
-                    html.H2("Similarity Browser", className="hero-title"),
+                    html.Div(
+                        [
+                            html.H4(
+                                "Similarity Browser",
+                                className="hero-title",
+                                style={"margin": 0}  # 👈 remove default H4 margin
+                            ),
+                            html.Span(
+                                "BETA",
+                                style={
+                                    "backgroundColor": "#a32fba",
+                                    "color": "white",
+                                    "fontSize": "11px",
+                                    "fontWeight": 700,
+                                    "padding": "3px 8px",
+                                    "borderRadius": "999px",
+                                    "marginLeft": "8px",
+                                    "letterSpacing": "0.06em",
+                                    "lineHeight": "1",          # 👈 helps vertical centering
+                                }
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "alignItems": "center",  # 👈 vertical alignment
+                            "justifyContent": "center",  # 👈 optional (centered header)
+                            "gap": "6px",
+                        }
+                    ),
 
                     html.P(
                         "Explore the strongest player–team similarities across college basketball. "
@@ -1833,6 +2021,7 @@ def select_team_for_player(selected_rows, table_data, player_name, start_year, e
 def update_team_results(team_name, pos_class, start_year, end_year):
     if not team_name or not pos_class:
         return html.Div("This may take 30 seconds or more.")
+    
 
     df = enter_team(team_name, pos_class, start_year=start_year, end_year=end_year)
     #print(df)
@@ -2252,7 +2441,7 @@ def update_matchup_summary(data, start_year, end_year):
                         style={"textAlign": "center"}
                     ),
                     html.Div(
-                        f"Comparison is against players at the same position within the team’s system ({data["posClass"]}).",
+                        f"Comparison is against players at the same position ({data["posClass"]}) within the team’s system.",
                         className="text-muted",
                         style={
                             "textAlign": "center",
@@ -2688,9 +2877,11 @@ def populate_matchup_dropdowns(data):
     prevent_initial_call=True
 )
 def update_matchup_from_dropdowns(player, team, existing):
+    # --- guard against half-filled dropdowns ---
     if not player or not team:
         raise PreventUpdate
 
+    # --- infer position ---
     extra_info = (
         all_player_df
         .query("player_name == @player")
@@ -2698,13 +2889,22 @@ def update_matchup_from_dropdowns(player, team, existing):
         [["posClass", 'roster.height', 'roster.year_class', 'roster.origin']]
     )
 
+    # --- defaults if no existing matchup yet ---
+    start_year = 2022
+    end_year = CURRENT_SEASON
+
+    if isinstance(existing, dict):
+        start_year = existing.get("start_year", start_year)
+        end_year = existing.get("end_year", end_year)
+
     return {
         "player": player,
         "team": team,
-        "posClass": extra_info['posClass'].iloc[0],
-        "start_year": existing.get("start_year", 2022),
-        "end_year": existing.get("end_year", CURRENT_SEASON)
+        "posClass": extra_info["posClass"].iloc[0],
+        "start_year": start_year,
+        "end_year": end_year,
     }
+
 
 
 
@@ -2805,6 +3005,3 @@ def sync_matchup_years(data):
 
 if __name__ == "__main__":
     app.run_server(debug=True)
-
-
-
