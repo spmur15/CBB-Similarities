@@ -457,6 +457,11 @@ def enter_team(
     top_n=60,
     min_poss=100
 ):
+    
+    
+    #if team_name is None or pos_class is None:
+    #    return pd.DataFrame()
+    
     # ---- build team vector first ----
     team_vec = build_team_position_vector(
         df=all_player_df,
@@ -570,6 +575,14 @@ def browse_compatibility(
 
 @lru_cache(maxsize=256)
 def get_matchup_detail(player, team, pos_class, start_year=2022, end_year=2026, style_weight=0.7):
+
+    if player is None or team is None:
+        return {
+        "player_row": None,
+        "team_vec": None,
+        "scores": None,
+        "roster": None
+    }
 
     player_row = (
         all_player_df
