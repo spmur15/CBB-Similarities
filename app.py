@@ -2958,7 +2958,7 @@ def update_matchup_chart(data, tab, start_year, end_year):
 
             annotations.append(
                 dict(
-                    x=-0.15,                # push left of axis
+                    x=-0.12,                # push left of axis
                     y=y_center+0.56,
                     xref="paper",
                     yref="y",
