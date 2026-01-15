@@ -888,47 +888,66 @@ def navbar():
     return dbc.Navbar(
         dbc.Container(
             [
-                dbc.NavbarBrand(
+               dbc.NavbarBrand(
                     html.Div(
                         [
-                            html.Span(
-                                "CBB Similarity",
+                            # ---------- Top row: title + pill ----------
+                            html.Div(
+                                [
+                                    html.Span(
+                                        "CBB Similarity",
+                                        style={
+                                            "fontWeight": 600,
+                                            "fontSize": "24px",
+                                            "lineHeight": "1",
+                                        },
+                                    ),
+                                    html.Span(
+                                        "BETA",
+                                        style={
+                                            "backgroundColor": "#a32fba",
+                                            "color": "white",
+                                            "fontSize": "10px",
+                                            "fontWeight": 700,
+                                            "padding": "3px 7px",
+                                            "borderRadius": "999px",
+                                            "letterSpacing": "0.06em",
+                                            "lineHeight": "1",
+                                        },
+                                    ),
+                                ],
                                 style={
-                                    "fontWeight": 600,
-                                    "fontSize": "24px",
-                                    "lineHeight": "1",
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "gap": "8px",
                                 },
                             ),
-                            html.Span(
-                                "BETA",
+
+                            # ---------- Bottom row: attribution ----------
+                            html.A(
+                                "Using data from hoop-explorer.com",
+                                href="https://hoop-explorer.com",
+                                target="_blank",
+                                className="external-link",
                                 style={
-                                    "backgroundColor": "#a32fba",
-                                    "color": "white",
                                     "fontSize": "10px",
-                                    "fontWeight": 700,
-                                    "padding": "3px 7px",
-                                    "borderRadius": "999px",
-                                    "letterSpacing": "0.06em",
-                                    "lineHeight": "1",
+                                    "color": "#9ca3af",     # subtle gray
+                                    "marginTop": "4px",
+                                    "lineHeight": "1.2",
+                                    "textDecoration": "none",
                                 },
                             ),
                         ],
                         style={
                             "display": "flex",
-                            "alignItems": "center",
-                            "gap": "8px",
+                            "flexDirection": "column",
                         },
                     )
                 ),
 
+
                 dbc.Nav(
                     [
-                        dbc.NavLink(
-                            html.Div(["Similarity", html.Br(), "Details"]),
-                            href="/matchup",
-                            active="exact",
-                            className="nav-item-stack"
-                        ),
                         dbc.NavLink(
                             html.Div(["Enter", html.Br(), "Teams"]),
                             href="/team",
@@ -938,6 +957,12 @@ def navbar():
                         dbc.NavLink(
                             html.Div(["Enter", html.Br(), "Players"]),
                             href="/player",
+                            active="exact",
+                            className="nav-item-stack"
+                        ),
+                        dbc.NavLink(
+                            html.Div(["Specific", html.Br(), "Pairs"]),
+                            href="/matchup",
                             active="exact",
                             className="nav-item-stack"
                         ),
@@ -1124,7 +1149,7 @@ def team_layout():
                     html.Div(
                         [
                             html.H4(
-                                "Enter Players",
+                                "Enter Teams",
                                 className="hero-title",
                                 style={"margin": 0}  # 👈 remove default H4 margin
                             ),
@@ -1472,10 +1497,77 @@ def about_layout():
                     className="external-link"
                 ),
                 " to evaluates stylistic and statistical similarity between college basketball players and team systems."]),
-        html.P("Similarity scores are based on PCA embeddings of style and stat profiles. Scores are between -1 and 1 and can be interpreted as:"),
+        # html.P("Similarity scores are based on PCA embeddings of style and stat profiles. Scores are between -1 and 1 and can be interpreted as:"),
+        # html.Div(
+        #     [
+        #         html.Strong("Similarity Scores"),
+        #         html.Ul([
+        #             html.Li(".9 - 1 → Extremely similar"),
+        #             html.Li(".7 - .9 → Very similar"),
+        #             html.Li(".5 - .7 → Somewhat similar"),
+        #             html.Li(".2 - .5 → Some small similarities"),
+        #             html.Li("<.2 → Not similar"),
+        #         ]),
+        #     ],
+        # ),
+        # html.P("An example using Nick Townsend (wing) and UConn: similarity scores are drawn from UConn's wings over the desired subset of seasons and Nick Townsend in the 2025-26 season..."),
+        html.H5("How Similarity Is Calculated"),
+
+        html.P(
+            "Similarity scores measure how closely a player’s offensive style and statistical tendencies "
+            "match a team’s historical usage at the same position."
+        ),
+
+        html.P("For a given matchup:"),
+
+        html.Ul(
+            [
+                html.Li(
+                    "The player profile comes from the current season (2025-26)."
+                ),
+                html.Li(
+                    "The team profile is built by a weighted average of players at the same position group "
+                    "(Guard, Wing, or Big) within that team’s system over the selected seasons."
+                ),
+                html.Li(
+                    "All statistics are pace-adjusted and weighted by possessions, so higher-usage players "
+                    "have more influence on the team profile."
+                ),
+            ]
+        ),
+
+        html.P(
+            "To compare these profiles, the app uses Principal Component Analysis (PCA) to reduce "
+            "several correlated stats and play-type frequencies into a smaller set of underlying "
+            "dimensions that capture the main patterns in how players and teams operate."
+        ),
+
+        html.P(
+            "Similarity is then calculated using cosine similarity between a player’s PCA representation "
+            "and a team’s PCA representation for that position."
+        ),
+
+        html.P(
+            "The final similarity score is a weighted combination of:"
+        ),
+
+        html.Ul(
+            [
+                html.Li("70% - Style Similarity (how actions and play types are used)"),
+                html.Li(
+                    "30% - Statistical Similarity (efficiency, shot diet, playmaking, and defensive indicators)"
+                ),
+            ]
+        ),
+
+        html.H5("Interpreting the Scores"),
+
+        html.P(
+            "The resulting similarity scores range from –1 to 1, and can be loosely interpreted as:"
+        ),
         html.Div(
             [
-                html.Strong("Similarity Scores"),
+                #html.Strong("Similarity Scores"),
                 html.Ul([
                     html.Li(".9 - 1 → Extremely similar"),
                     html.Li(".7 - .9 → Very similar"),
@@ -1485,9 +1577,65 @@ def about_layout():
                 ]),
             ],
         ),
-        html.P("An example using Nick Townsend (wing) and UConn: similarity scores are drawn from UConn's wings over the desired subset of seasons and Nick Townsend in the 2025-26 season..."),
+
+        # html.P(
+        #     [
+        #         html.Em("Example: "),
+        #         "Using Nick Townsend (Wing) and UConn, Nick Townsend’s 2025–26 profile is compared against "
+        #         "how UConn has historically used wings within its offensive system over the selected "
+        #         "seasons. The resulting similarity score reflects how closely his style and statistical "
+        #         "tendencies align with what UConn typically asks of that position."
+        #     ]
+        # ),
+
+        html.H5("Learn More"),
+
+        html.Ul(
+            [
+                html.Li(
+                    [
+                        "Principal Component Analysis (PCA): ",
+                        html.A(
+                            "https://en.wikipedia.org/wiki/Principal_component_analysis",
+                            href="https://en.wikipedia.org/wiki/Principal_component_analysis",
+                            target="_blank",
+                            className="external-link",
+                        ),
+                    ]
+                ),
+                html.Li(
+                    [
+                        "Cosine Similarity: ",
+                        html.A(
+                            "https://en.wikipedia.org/wiki/Cosine_similarity",
+                            href="https://en.wikipedia.org/wiki/Cosine_similarity",
+                            target="_blank",
+                            className="external-link",
+                        ),
+                    ]
+                ),
+                html.Li(
+                    [
+                        "Hoop Explorer methodology: ",
+                        html.A(
+                            "https://hoop-explorer.blogspot.com",
+                            href="https://hoop-explorer.blogspot.com",
+                            target="_blank",
+                            className="external-link",
+                        ),
+                    ]
+                ),
+            ]
+        ),
+
         html.Br(),
         html.H5("Styles"),
+        html.A(
+                "Play type details from hoop-explorer.com",
+                href="https://hoop-explorer.blogspot.com",
+                target="_blank",
+                className="external-link",
+            ),
         html.P("Styles are the percentage of possessions for a player or team with a specific action or play type. By default, style similarity makes up 70% of the overall similarity score. The styles are:"),
         html.Div(
             [
@@ -1520,7 +1668,7 @@ def about_layout():
         ),
         html.Div(
             [
-                html.Strong("Screens"),
+                html.Strong("Screen plays"),
                 html.Ul([
                     html.Li("Big cut/roll"),
                     html.Li("Pick & pop"),
@@ -1546,6 +1694,9 @@ def about_layout():
                 ]),
             ],
         ),
+
+        
+        
         html.Br(),
         html.H5("Stats"),
         html.P("Stats are all pace-adjusted and represent characteristics in play styles and abilities. By default, style similarity makes up 30% of the overall similarity scores. The stats used are:"),
@@ -1581,9 +1732,9 @@ def about_layout():
             ],
         ),
         html.Br(),
-        html.H5("Positions"),
-        html.P("Positions are Guard, Wing, and Big. Comparisons are position-specific."),
-        html.P("Positions defined from hoop-explorer.com's 8 detailed positions:"),
+        html.H5("Position groups"),
+        html.P("Position groups are Guard, Wing, and Big. Comparisons are position-specific."),
+        html.P("Position groups are defined from hoop-explorer.com's 8 detailed positions:"),
         html.Div(
             [
                 html.Strong("Guard"),
@@ -1617,12 +1768,40 @@ def about_layout():
                 ]),
             ]
         ),
-        html.A(
-            "Hoop-Explorer.com",
-            href="https://hoop-explorer.com",
-            target="_blank",   # open in new tab
-            className="external-link"
+        # html.A(
+        #     "Hoop-Explorer.com",
+        #     href="https://hoop-explorer.com",
+        #     target="_blank",   # open in new tab
+        #     className="external-link"
+        # ),
+
+        html.Hr(style={"opacity": 0.3}),
+
+        html.P(
+            [
+                "Report errors or suggestions: ",
+                html.A(
+                    "cbbbythenumbers@gmail.com",
+                    href="mailto:cbbbythenumbers@gmail.com",
+                    className="external-link",
+                ),
+            ],
+            style={
+                "fontSize": "14px",
+                "color": "#374151",
+            }
         ),
+        html.P(
+            [
+                "Built by Smur",
+            ],
+            style={
+                "fontSize": "14px",
+                "color": "#374151",
+                "marginTop":"4px"
+            }
+        )
+
         
     ])
 
@@ -1846,7 +2025,9 @@ def render_navbar(_):
     Input("url", "pathname")
 )
 def route_page(pathname):
-    if pathname == "/browse":
+    if pathname in (None, "/", ""):
+        return team_layout()   # 👈 default landing page
+    elif pathname == "/browse":
         return browse_layout()
     elif pathname == "/player":
         return player_layout()
@@ -1857,15 +2038,46 @@ def route_page(pathname):
     elif pathname == "/about":
         return about_layout()
     else:
-        return team_layout()  # default
+        return player_layout()
+
+
+# @app.callback(
+#     Output("url", "pathname"),
+#     Input("selected-matchup", "data"),
+#     prevent_initial_call=True
+# )
+# def go_to_matchup(_):
+#     return "/matchup"
+
+
+import dash
+from dash import no_update
+from dash.exceptions import PreventUpdate
 
 @app.callback(
     Output("url", "pathname"),
+    Output("selected-matchup", "data", allow_duplicate=True),
     Input("selected-matchup", "data"),
+    State("url", "pathname"),
     prevent_initial_call=True
 )
-def go_to_matchup(_):
-    return "/matchup"
+def go_to_matchup(data, pathname):
+    if not isinstance(data, dict):
+        raise PreventUpdate
+
+    # Only auto-navigate when explicitly requested
+    if not data.get("auto_nav", False):
+        raise PreventUpdate
+
+    # Clear the flag so refreshes don't keep redirecting
+    cleared = {**data, "auto_nav": False}
+
+    # If already on matchup, don't change URL
+    if pathname == "/matchup":
+        return no_update, cleared
+
+    return "/matchup", cleared
+
 
 
 
@@ -2000,6 +2212,7 @@ def select_team_for_player(selected_rows, table_data, player_name, start_year, e
         "posClass": extra_info['posClass'].iloc[0],
         "start_year": start_year,
         "end_year": end_year,
+        "auto_nav": True,
         #'roster.height':extra_info['roster.height'].iloc[0],
         #'roster.year_class':extra_info['roster.year_class'].iloc[0],
         #'roster.origin':extra_info['roster.origin'].iloc[0]
@@ -2134,6 +2347,7 @@ def select_player_for_team(selected_rows, table_data, team_name, pos_class, star
         "posClass": pos_class,
         "start_year": start_year,
         "end_year": end_year,
+        "auto_nav": True,
         #"roster.height": row['roster.height'],
         #"roster.year_class": row['roster.year_class'],
         #"roster.year_class": row['roster.year_class']
@@ -2387,6 +2601,7 @@ def select_from_browse(selected_rows, table_data, pos_class):
         "player": row["player"],
         "team": row["target_team"],
         "posClass": pos_class,
+        "auto_nav": True,
         #"roster.height": row['roster.height'],
         #"roster.year_class": row['roster.year_class'],
         #"roster.year_class": row['roster.year_class']
