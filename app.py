@@ -2041,24 +2041,32 @@ app.layout = html.Div(
 # -------------------------------------------------
 
 
+from dash import callback_context, no_update
+
 @app.callback(
     Output("help-modal", "is_open"),
     Output("help-seen", "data"),
     Input("close-help-modal", "n_clicks"),
-    State("help-seen", "data"),
-    prevent_initial_call=True
+    Input("help-seen", "data"),
 )
-def dismiss_help(n, seen):
-    return False, True
+def control_help_modal(close_clicks, seen):
+    ctx = callback_context
 
+    # On first load: help-seen is None → open modal
+    if not ctx.triggered:
+        return True, None
 
-# @app.callback(
-#     Output("help-modal", "is_open"),
-#     Input("help-seen", "data"),
-# )
-# def maybe_open_help(seen):
-#     # If never dismissed in this session → show it
-#     return not bool(seen)
+    trigger = ctx.triggered[0]["prop_id"]
+
+    # User clicked "Got it"
+    if trigger == "close-help-modal.n_clicks":
+        return False, True
+
+    # help-seen changed (e.g. initial load or refresh)
+    if trigger == "help-seen.data":
+        return not bool(seen), seen
+
+    return no_update, no_update
 
 
 
