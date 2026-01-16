@@ -470,6 +470,50 @@ TARGET_CONF_OPTIONS_BY_POS = {
 }
 
 
+import dash_bootstrap_components as dbc
+from dash import html, dcc
+
+help_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Welcome to CBB Similarity")),
+        dbc.ModalBody(
+            [
+                html.P(
+                    "This app helps you explore player and team similarities "
+                    "across college basketball seasons using statistical profiles."
+                ),
+                html.Hr(),
+                html.Ul([
+                    html.Li("Use the navigation bar to enter Teams, Players, or Positions."),
+                    html.Li("Select seasons to compare across years."),
+                    html.Li("Click any matchup to see detailed similarity breakdowns."),
+                    html.Li("Browse pairs to explore comparable players or fits."),
+                ]),
+                html.P(
+                    "Tip: Similarity scores are based on role-adjusted stats, "
+                    "not raw box score totals.",
+                    style={"fontSize": "0.9rem", "color": "#666"}
+                ),
+            ]
+        ),
+        dbc.ModalFooter(
+            dbc.Button(
+                "Got it",
+                id="close-help-modal",
+                className="ms-auto",
+                color="primary"
+            )
+        ),
+    ],
+    id="help-modal",
+    is_open=False,     # 👈 opens automatically on page load
+    centered=True,
+    size="md",
+    backdrop="static",  # optional: prevents accidental close
+)
+
+
+
 # -------------------------------------------------
 # APP SETUP (MUST COME FIRST)
 # -------------------------------------------------
@@ -925,7 +969,7 @@ def navbar():
 
                             # ---------- Bottom row: attribution ----------
                             html.A(
-                                "Data from hoop-explorer.com thru Jan. 14",
+                                "Using data from hoop-explorer.com",
                                 href="https://hoop-explorer.com",
                                 target="_blank",
                                 className="external-link",
@@ -1023,7 +1067,7 @@ def position_layout():
                 "gap": "6px",
             }
         ),
-        html.Hr(style={"opacity": 0.3}),
+        html.Hr(style={"opacity": 0.3,'marginTop':'100px'}),
         dbc.Row([
                 dbc.Col(
                     [
@@ -1132,7 +1176,7 @@ def player_layout():
                 children=[
                     dbc.Spinner(dcc.Loading(id="player-results"))
                 ]
-            )
+            ),
         ]
     )
 
@@ -1245,7 +1289,7 @@ def team_layout():
                 children=[
                     dbc.Spinner(dcc.Loading(id="team-results"))
                 ]
-            )
+            ),
         ]
     )
 
@@ -1768,12 +1812,6 @@ def about_layout():
                 ]),
             ]
         ),
-        # html.A(
-        #     "Hoop-Explorer.com",
-        #     href="https://hoop-explorer.com",
-        #     target="_blank",   # open in new tab
-        #     className="external-link"
-        # ),
 
         html.Hr(style={"opacity": 0.3}),
 
@@ -1784,25 +1822,13 @@ def about_layout():
                     "cbbbythenumbers@gmail.com",
                     href="mailto:cbbbythenumbers@gmail.com",
                     className="external-link",
-                ),
+                )
             ],
             style={
                 "fontSize": "14px",
                 "color": "#374151",
             }
-        ),
-        html.P(
-            [
-                "Built by Smur",
-            ],
-            style={
-                "fontSize": "14px",
-                "color": "#374151",
-                "marginTop":"4px"
-            }
-        )
-
-        
+        ),     
     ])
 
 def browse_layout():
@@ -1978,7 +2004,11 @@ def browse_layout():
                 children=[
                     dbc.Spinner(html.Div(id="browse-results"))
                 ]
-            )
+            ),
+
+
+
+            
         ]
     )
 
@@ -1997,6 +2027,8 @@ app.layout = html.Div(
     children=[
         dcc.Location(id="url"),
         dcc.Store(id="selected-matchup", storage_type="session"),
+        help_modal,
+        dcc.Store(id="help-seen", storage_type="session"),
         html.Div(id="navbar"),
         html.Div(id="page-content", style={"padding": "24px"}),
         html.Br()
@@ -2007,6 +2039,26 @@ app.layout = html.Div(
 # -------------------------------------------------
 # CALLBACKS
 # -------------------------------------------------
+
+
+@app.callback(
+    Output("help-modal", "is_open"),
+    Output("help-seen", "data"),
+    Input("close-help-modal", "n_clicks"),
+    State("help-seen", "data"),
+    prevent_initial_call=True
+)
+def dismiss_help(n, seen):
+    return False, True
+
+
+# @app.callback(
+#     Output("help-modal", "is_open"),
+#     Input("help-seen", "data"),
+# )
+# def maybe_open_help(seen):
+#     # If never dismissed in this session → show it
+#     return not bool(seen)
 
 
 
