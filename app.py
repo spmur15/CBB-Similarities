@@ -1642,45 +1642,45 @@ def about_layout():
         #     ]
         # ),
 
-        html.H5("Learn More"),
+        # html.H5("Learn More"),
 
-        html.Ul(
-            [
-                html.Li(
-                    [
-                        "Principal Component Analysis (PCA): ",
-                        html.A(
-                            "https://en.wikipedia.org/wiki/Principal_component_analysis",
-                            href="https://en.wikipedia.org/wiki/Principal_component_analysis",
-                            target="_blank",
-                            className="external-link",
-                        ),
-                    ]
-                ),
-                html.Li(
-                    [
-                        "Cosine Similarity: ",
-                        html.A(
-                            "https://en.wikipedia.org/wiki/Cosine_similarity",
-                            href="https://en.wikipedia.org/wiki/Cosine_similarity",
-                            target="_blank",
-                            className="external-link",
-                        ),
-                    ]
-                ),
-                html.Li(
-                    [
-                        "Hoop Explorer methodology: ",
-                        html.A(
-                            "https://hoop-explorer.blogspot.com",
-                            href="https://hoop-explorer.blogspot.com",
-                            target="_blank",
-                            className="external-link",
-                        ),
-                    ]
-                ),
-            ]
-        ),
+        # html.Ul(
+        #     [
+        #         html.Li(
+        #             [
+        #                 "Principal Component Analysis (PCA): ",
+        #                 html.A(
+        #                     "https://en.wikipedia.org/wiki/Principal_component_analysis",
+        #                     href="https://en.wikipedia.org/wiki/Principal_component_analysis",
+        #                     target="_blank",
+        #                     className="external-link",
+        #                 ),
+        #             ]
+        #         ),
+        #         html.Li(
+        #             [
+        #                 "Cosine Similarity: ",
+        #                 html.A(
+        #                     "https://en.wikipedia.org/wiki/Cosine_similarity",
+        #                     href="https://en.wikipedia.org/wiki/Cosine_similarity",
+        #                     target="_blank",
+        #                     className="external-link",
+        #                 ),
+        #             ]
+        #         ),
+        #         html.Li(
+        #             [
+        #                 "Hoop Explorer methodology: ",
+        #                 html.A(
+        #                     "https://hoop-explorer.blogspot.com",
+        #                     href="https://hoop-explorer.blogspot.com",
+        #                     target="_blank",
+        #                     className="external-link",
+        #                 ),
+        #             ]
+        #         ),
+        #     ]
+        # ),
 
         html.Br(),
         html.H5("Styles"),
