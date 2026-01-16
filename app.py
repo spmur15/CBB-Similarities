@@ -479,19 +479,29 @@ help_modal = dbc.Modal(
         dbc.ModalBody(
             [
                 html.P(
-                    "This app helps you explore player and team similarities "
+                    "This app helps you explore compatible players and teams "
                     "across college basketball seasons using statistical profiles."
+                ),
+                html.P(
+                    [
+                    "Similarity scores are drawn from styles and stats from ",
+                    html.A(
+                        "hoop-explorer.com",
+                        href="https://hoop-explorer.com",
+                        target="_blank",
+                        className="external-link",
+                    ),
+                    " and are position-specific."
+                    ]
                 ),
                 html.Hr(),
                 html.Ul([
-                    html.Li("Use the navigation bar to enter Teams, Players, or Positions."),
-                    html.Li("Select seasons to compare across years."),
-                    html.Li("Click any matchup to see detailed similarity breakdowns."),
-                    html.Li("Browse pairs to explore comparable players or fits."),
+                    html.Li("Use the navigation bar to enter Teams, Players, or both."),
+                    html.Li("Click any matchup to see a breakdown of what styles and stats are similar."),
+                    html.Li("Adjust year range to take team stats from (2018-19 to now)"),
                 ]),
                 html.P(
-                    "Tip: Similarity scores are based on role-adjusted stats, "
-                    "not raw box score totals.",
+                    "Note: Styles available are all offensive, so the similarity scores are offensive-focused.",
                     style={"fontSize": "0.9rem", "color": "#666"}
                 ),
             ]
