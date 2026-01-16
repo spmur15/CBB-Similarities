@@ -969,7 +969,7 @@ def navbar():
 
                             # ---------- Bottom row: attribution ----------
                             html.A(
-                                "Using data from hoop-explorer.com",
+                                "Data from hoop-explorer.com thru Jan. 14",
                                 href="https://hoop-explorer.com",
                                 target="_blank",
                                 className="external-link",
